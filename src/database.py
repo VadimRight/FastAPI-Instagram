@@ -1,20 +1,25 @@
 
-from sqlalchemy import MetaData,  create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
-
+from sqlalchemy import MetaData
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import exc
 from src.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 Base = declarative_base()
 metadata = MetaData()
 
-engine = create_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(DATABASE_URL, echo=True)
+SessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
-def get_session():
+async def get_session():
     session = SessionLocal()
     try:
         yield session
+        await session.commit()
+    except exc.SQLAlcemyError as error:
+        await session.rollback()
+        raise
     finally:
         session.close()
