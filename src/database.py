@@ -1,3 +1,4 @@
+from typing import AsyncGenerator
 
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -10,16 +11,9 @@ Base = declarative_base()
 metadata = MetaData()
 
 engine = create_async_engine(DATABASE_URL, echo=True)
-SessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
-async def get_session():
-    session = SessionLocal()
-    try:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with SessionLocal() as session:
         yield session
-        await session.commit()
-    except exc.SQLAlcemyError as error:
-        await session.rollback()
-        raise
-    finally:
-        session.close()

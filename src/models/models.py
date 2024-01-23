@@ -13,34 +13,11 @@ from sqlalchemy import (
     Table,
     text,
 )
-import pprint
-
-engine = create_engine("sqlite://")
-
-with engine.begin() as conn:
-    conn.execute(
-        text(
-            '''
-                create table foo (
-                    id integer not null primary key,
-                    old_data varchar,
-                    x integer
-                )
-            '''
-        )
-    )
-    conn.execute(text("create table bar (data varchar)"))
 
 
-Table(
-    "image",
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("image", String, nullable=False)
-)
+class Image(Base):
+    __tablename__ = 'image'
+    id = Column(Integer, primary_key=True, index=True)
+    image = Column(String, index=True)
 
 
-mc = MigrationContext.configure(engine.connect())
-
-diff = compare_metadata(mc, metadata)
-pprint.pprint(diff, indent=2, width=20)
