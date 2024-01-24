@@ -18,25 +18,19 @@ def get_long_op():
 
 
 @router.get("/images")
-async def get_image(image_id: int, session: AsyncSession = Depends(get_session)):
-    query = select(Image).where(Image.id == image_id)
-    results = await session.execute(query)
-    return results.scalars().all()
+async def get_image():
+    async with SessionLocal() as session:
+        q = select(Image)
+        result = await session.execute(q)
+        curr = result.scalars().all()
+        print(curr)
+        return {"status": "success", "data": curr, "details": None}
 
-# @router.post("/images")
-# async def post_image(request: Request, responce: Response, image: Image):
-#     try:
-#         SessionLocal.begin()
-#         image_record = Image(**dict(image))
-#         SessionLocal.add(image_record)
-#         SessionLocal.commit()
-#         image.id = image_record.id
-#         return image
-#     except Exception as e:
-#         SessionLocal.rollback()
-#         responce.status_code = status.HTTP_404_NOT_FOUND
-#         return {
-#             "error": e,
-#             "error_details": e.orig.args if hasattr(e, "orig") else f"{e}"
-#         }
 
+@router.post("/images")
+async def post_image(image: str):
+    async with SessionLocal() as session:
+        stock_image = Image(image=image)
+        session.add(stock_image)
+        await session.commit()
+        return {"image_added": stock_image.image}
