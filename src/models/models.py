@@ -3,6 +3,7 @@ from alembic.runtime.migration import MigrationContext
 from pydantic import Json
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy_imageattach.entity import image_attachment
 
 from src.database import Base, metadata
 
@@ -18,6 +19,6 @@ from sqlalchemy import (
 class Image(Base):
     __tablename__ = 'image'
     id = Column(Integer, primary_key=True, index=True)
-    image = Column(String, index=True)
+    image = image_attachment('UserPicture')
 
 
