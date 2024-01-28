@@ -1,13 +1,16 @@
-from sqlalchemy_imageattach.entity import image_attachment
+from typing import Dict, Any
 
+import jwt
+import bcrypt
+
+from src.config import SECRET
 from src.database import Base, metadata
 
-from sqlalchemy import Column, Integer, Text, MetaData, String, create_engine, LargeBinary, ForeignKey
+from sqlalchemy import Column, LargeBinary, ForeignKey, Boolean, \
+    UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import (
     Integer,
     String,
-    Table,
-    text,
 )
 
 
@@ -19,10 +22,44 @@ class Image(Base):
 
 
 class User(Base):
-    id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False, unique=True)
-    hashed_password: str = Column(String(length=24), nullable=False)
-    email = Column(String, nullable=False, unique=True)
-    __tablename__ = 'user'
+    """Models a user table"""
+    __tablename__ = "user"
+    email = Column(String(225), nullable=False, unique=True)
+    id = Column(Integer, nullable=False, primary_key=True)
+    hashed_password = Column(LargeBinary, nullable=False)
+    username = Column(String(15), nullable=False, )
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
 
+    UniqueConstraint("email", name="uq_user_email")
+    PrimaryKeyConstraint("id", name="pk_user_id")
+
+    def __repr__(self):
+        """Returns string representation of model instance"""
+        return "<User {username!r}>".format(username=self.username)
+
+    @staticmethod
+    def hash_password(password):
+        """Transforms password from it's raw textual form to
+        cryptographic hashes
+        """
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+    def validate_password(self, password):
+        """Confirms password validity"""
+        return {
+            "access_token": jwt.encode(
+                {"username": self.username, "email": self.email},
+                "ApplicationSecretKey"
+            )
+        }
+
+    def generate_token(self):
+        """Generate access token for user"""
+        return {
+            "access_token": jwt.encode(
+                {"username": self.username, "email": self.email},
+                SECRET
+            )
+        }
 
