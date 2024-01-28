@@ -26,7 +26,7 @@ async def signup(
 #     return result.scalar().all()
 
 
-@router.get("/profile/{id}")
+@router.get("/profile/")
 async def profile(session: AsyncSession = Depends(get_session)):
     """Processes request to retrieve user profile by id"""
     result = await session.execute(select(User))
