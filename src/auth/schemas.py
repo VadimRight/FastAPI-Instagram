@@ -12,7 +12,10 @@ class CreateUserSchema(UserBaseSchema):
 
 class UserSchema(UserBaseSchema):
     id: int
-    is_active: bool = Field(default=False)
+    username: str
+    email: EmailStr
+    is_active: bool = True
+    is_verified: bool = False
 
     class Config:
         from_attributes = True
