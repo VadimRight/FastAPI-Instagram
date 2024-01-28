@@ -21,14 +21,13 @@ async def signup(
     return await create_user(session, payload)
 
 
-def get_user_by_id(session:AsyncSession, id:int):
-    result =  session.execute(select(User)).filter(User.id == id).one()
+# async def get_user_by_id(session:AsyncSession, id: int):
+#     result = await session.execute(select(User.id == id))
+#     return result.scalar().all()
 
 
-@router.get("/profile/{id}", response_model=UserSchema)
-async def profile(id: int, session: AsyncSession = Depends(get_session)):
+@router.get("/profile/{id}")
+async def profile(session: AsyncSession = Depends(get_session)):
     """Processes request to retrieve user profile by id"""
-    user = await get_user_by_id(session=session, id=id)
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    result = await session.execute(select(User))
+    return {"user": result.mappings().all()}

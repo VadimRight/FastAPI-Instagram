@@ -2,10 +2,10 @@ from typing import Dict, Any
 
 import jwt
 import bcrypt
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.config import SECRET
-from src.database import Base, metadata
-
+from src.database import Base
 from sqlalchemy import Column, LargeBinary, ForeignKey, Boolean, \
     UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import (
