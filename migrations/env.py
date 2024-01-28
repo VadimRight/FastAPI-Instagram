@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 import os, sys
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
-from src.database import Base
 from src.models.models import *
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
