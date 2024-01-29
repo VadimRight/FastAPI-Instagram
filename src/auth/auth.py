@@ -1,3 +1,4 @@
+from typing import Any
 
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
@@ -28,4 +29,13 @@ async def get_user(session: AsyncSession, email: str) -> User:
     async with session.begin():
         query = select(User).where(User.email == email)
         result = await session.execute(query)
+        return result.scalar()
+
+
+async def get_user_by_id(session: AsyncSession, id: int) -> str | User | None:
+    async with session.begin():
+        query = select(User).where(User.id == id)
+        result = await session.execute(query)
+        if id is None:
+            raise HTTPException(status_code=404, detail=f"There is no user with {id} id")
         return result.scalar()

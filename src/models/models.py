@@ -1,8 +1,6 @@
-from typing import Dict, Any
 
 import jwt
 import bcrypt
-from sqlalchemy.orm import Mapped, mapped_column
 
 from src.config import SECRET
 from src.database import Base
@@ -62,4 +60,3 @@ class User(Base):
                 SECRET
             )
         }
-
