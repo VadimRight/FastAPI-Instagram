@@ -8,6 +8,8 @@ class UserBaseSchema(BaseModel):
 
 class CreateUserSchema(UserBaseSchema):
     hashed_password: str = Field(alias="password")
+    username: str
+    email: EmailStr
 
 
 class UserSchema(UserBaseSchema):
@@ -19,3 +21,8 @@ class UserSchema(UserBaseSchema):
 
     class Config:
         from_attributes = True
+
+
+class UserLoginSchema(BaseModel):
+    email: EmailStr = Field(alias="username")
+    hashed_password: str = Field(alias="password")

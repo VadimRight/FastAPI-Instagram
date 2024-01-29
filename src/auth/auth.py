@@ -1,10 +1,11 @@
+
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi.security import OAuth2PasswordBearer
 from src.auth.schemas import CreateUserSchema, UserSchema
-from src.database import SessionLocal
 from src.models.models import User
 
 
@@ -21,3 +22,10 @@ async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserS
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
+async def get_user(session: AsyncSession, email: str) -> User:
+    async with session.begin():
+        query = select(User).where(User.email == email)
+        result = await session.execute(query)
+        return result.scalar()
