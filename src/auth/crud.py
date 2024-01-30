@@ -22,10 +22,7 @@ async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserS
         raise HTTPException(status_code=400, detail="Username or email already registered")
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-
-async def get_user(session: AsyncSession, email: str) -> User:
+async def get_user_by_email(session: AsyncSession, email: str) -> User:
     async with session.begin():
         query = select(User).where(User.email == email)
         result = await session.execute(query)
