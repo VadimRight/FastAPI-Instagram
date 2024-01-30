@@ -3,8 +3,9 @@ from typing import Optional
 from fastapi_users import IntegerIDMixin, BaseUserManager
 
 from src.config import SECRET
+from src.database import get_user_db
 from src.models.models import User
-from fastapi import Request
+from fastapi import Request, Depends
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
@@ -23,3 +24,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         self, user: User, token: str, request: Optional[Request] = None
     ):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
+
+
+async def get_user_manager(user_db=Depends(get_user_db)):
+    yield UserManager(user_db)
