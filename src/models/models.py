@@ -1,19 +1,18 @@
 from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
-
-
-
+from datetime import datetime, timedelta
 import jwt
 import bcrypt
 
-from src.config import SECRET
+from src.config import SECRET, JWT_ALGORITHM
 from sqlalchemy import Column, LargeBinary, ForeignKey, Boolean, \
     UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import (
     Integer,
     String,
 )
+
+
+Base = declarative_base()
 
 
 class Image(Base):
@@ -64,3 +63,15 @@ class User(Base):
                 SECRET
             )
         }
+
+    def create_access_token(self, exp: int = None) -> bytes:
+        to_encode = self.dict()
+        if exp is not None:
+            to_encode.update({"exp": exp})
+        else:
+            expire = datetime.utcnow() + timedelta(minutes=60)
+            to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(
+            to_encode, SECRET, algorithm=JWT_ALGORITHM
+        )
+        return encoded_jwt
