@@ -1,8 +1,7 @@
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, declarative_base
 from sqlalchemy_imageattach.entity import image_attachment
 
-from src.database import Base, metadata
 
 from sqlalchemy import Column, Integer, Text, MetaData, String, create_engine, LargeBinary, ForeignKey, Boolean
 from sqlalchemy import (
@@ -11,6 +10,8 @@ from sqlalchemy import (
     Table,
     text,
 )
+
+Base = declarative_base()
 
 
 class Image(Base):

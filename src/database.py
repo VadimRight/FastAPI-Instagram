@@ -7,10 +7,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import exc
 from src.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
-from src.models.models import User
+from src.models.models import User, Base
 
 DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-Base = declarative_base()
+
 metadata = MetaData()
 
 engine = create_async_engine(DATABASE_URL, echo=True)
