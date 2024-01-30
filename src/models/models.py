@@ -1,16 +1,18 @@
-from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
-from sqlalchemy.orm import Mapped, mapped_column, declarative_base
-from sqlalchemy_imageattach.entity import image_attachment
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
 
-from sqlalchemy import Column, Integer, Text, MetaData, String, create_engine, LargeBinary, ForeignKey, Boolean
+
+import jwt
+import bcrypt
+
+from src.config import SECRET
+from sqlalchemy import Column, LargeBinary, ForeignKey, Boolean, \
+    UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import (
     Integer,
     String,
-    Table,
-    text,
 )
 
 
@@ -21,21 +23,44 @@ class Image(Base):
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
 
 
-class User(SQLAlchemyBaseUserTable[int], Base):
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String(length=25), unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(
-        String(length=320), unique=True, index=True, nullable=False
-    )
-    hashed_password: Mapped[str] = mapped_column(
-        String(length=1024), nullable=False
-    )
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    is_superuser: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    is_verified: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
+class User(Base):
+    """Models a user table"""
+    __tablename__ = "user"
+    email = Column(String(225), nullable=False, unique=True)
+    id = Column(Integer, nullable=False, primary_key=True)
+    hashed_password = Column(LargeBinary, nullable=False)
+    username = Column(String(15), nullable=False, )
+    is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
 
+    UniqueConstraint("email", name="uq_user_email")
+    PrimaryKeyConstraint("id", name="pk_user_id")
 
+    def __repr__(self):
+        """Returns string representation of model instance"""
+        return "<User {username!r}>".format(username=self.username)
+
+    @staticmethod
+    def hash_password(password):
+        """Transforms password from it's raw textual form to
+        cryptographic hashes
+        """
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+    def validate_password(self, password):
+        """Confirms password validity"""
+        return {
+            "access_token": jwt.encode(
+                {"username": self.username, "email": self.email},
+                "ApplicationSecretKey"
+            )
+        }
+
+    def generate_token(self):
+        """Generate access token for user"""
+        return {
+            "access_token": jwt.encode(
+                {"username": self.username, "email": self.email},
+                SECRET
+            )
+        }
