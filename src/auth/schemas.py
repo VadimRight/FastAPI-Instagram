@@ -26,3 +26,12 @@ class UserSchema(UserBaseSchema):
 class UserLoginSchema(BaseModel):
     email: EmailStr = Field(alias="username")
     hashed_password: str = Field(alias="password")
+
+
+class User(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True
