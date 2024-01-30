@@ -35,4 +35,3 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True
-fgdgjhsdnhkjsdgnjk
