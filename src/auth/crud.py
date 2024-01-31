@@ -1,12 +1,12 @@
 from typing import Any
 
 from asyncpg import UniqueViolationError
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi.security import OAuth2PasswordBearer
-from src.auth.schemas import CreateUserSchema, UserSchema
+from src.auth.schemas import CreateUserSchema, UserSchema, UserBaseSchema
 from src.models.models import User
 
 
@@ -35,4 +35,13 @@ async def get_user_by_id(session: AsyncSession, id: int) -> str | User | None:
         result = await session.execute(query)
         if id is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {id} id")
+        return result.scalar()
+
+
+async def get_user_by_username(session: AsyncSession,username: str):
+    async with session.begin():
+        query = select(User).where(User.username == username)
+        result = await session.execute(query)
+        if username is None:
+            raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
         return result.scalar()

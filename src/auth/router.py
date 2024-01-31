@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from src.auth.crud import create_user, get_user_by_email, get_user_by_id
-from src.auth.schemas import UserSchema, CreateUserSchema, UserLoginSchema
+from src.auth.crud import create_user, get_user_by_email, get_user_by_id, get_user_by_username
+from src.auth.schemas import UserSchema, CreateUserSchema, UserLoginSchema, UserBaseSchema
 from src.database import get_session
 from src.models.models import User
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -41,15 +41,13 @@ async def signup(
     return user.generate_token()
 
 
-@router.get("/profile/{id}")
+@router.get("/profile/{username}")
 async def profile(
-        id: int,
+        username: str,
         token: str = Depends(oauth2_scheme),
         session: AsyncSession = Depends(get_session)):
     """Processes request to retrieve user profile by id"""
-    user: User = await get_user_by_id(session, id)
-    if user is None:
-        return f"No user with {id} id"
+    user: User = await get_user_by_username(session, username)
     return user
 
 
