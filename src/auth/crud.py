@@ -38,10 +38,11 @@ async def get_user_by_id(session: AsyncSession, id: int) -> str | User | None:
         return result.scalar()
 
 
-async def get_user_by_username(session: AsyncSession,username: str):
+async def get_user_by_username(session: AsyncSession, username: str) -> UserBaseSchema:
     async with session.begin():
         query = select(User).where(User.username == username)
         result = await session.execute(query)
+        user = result.scalar()
         if username is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
-        return result.scalar()
+        return UserBaseSchema(**user.__dict__)
