@@ -11,7 +11,7 @@ from fastapi.security import OAuth2PasswordBearer
 from starlette import status
 import jwt
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import CreateUserSchema, UserSchema, UserBaseSchema, TokenData
+from src.auth.schemas import CreateUserSchema, UserSchema, UserBaseSchema, TokenData, UserInDB
 from src.config import SECRET, ALGORITHM
 from src.database import get_session
 from src.models.models import User
@@ -27,6 +27,16 @@ async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserS
             return UserSchema.model_validate(user)
     except UniqueViolationError:
         raise HTTPException(status_code=400, detail="Username or email already registered")
+
+
+async def get_user_in_db(session: AsyncSession, username: str) -> UserInDB:
+    async with session.begin():
+        query = select(User).where(User.username == username)
+        result = await session.execute(query)
+        user = result.scalar()
+        if username is None:
+            raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
+        return UserInDB(**user.__dict__)
 
 
 async def get_user_by_email(session: AsyncSession, email: str) -> User:
@@ -62,8 +72,8 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-async def authenticate_user(fake_db, username: str, password: str):
-    user = await get_user_by_id(fake_db, username)
+async def authenticate_user(session: AsyncSession, username: str, password: str):
+    user = await get_user_in_db(session, username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
