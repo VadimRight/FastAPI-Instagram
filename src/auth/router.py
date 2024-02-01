@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy import select
@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from src.auth.crud import create_user, get_user_by_email, get_user_by_id, get_user_by_username
+from src.auth.crud import create_user, get_user_by_email, get_user_by_id, get_user_by_username, get_current_active_user
 from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import UserSchema, CreateUserSchema, UserLoginSchema, UserBaseSchema
 from src.database import get_session
@@ -58,6 +58,8 @@ async def register(payload: CreateUserSchema = Body(),
     return await create_user(session, payload)
 
 
-@router.get("/profile/me", response_model=UserSchema)
-async def read_user_me():
-    pass
+@router.get("/users/me/", response_model=UserSchema)
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
+    return current_user

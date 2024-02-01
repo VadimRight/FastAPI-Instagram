@@ -2,6 +2,7 @@ from typing import Any, Annotated
 
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException, Depends
+from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,6 +52,22 @@ async def get_user_by_username(session: AsyncSession, username: str) -> UserBase
         if username is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
         return UserBaseSchema(**user.__dict__)
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+async def authenticate_user(fake_db, username: str, password: str):
+    user = await get_user_by_id(fake_db, username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSession = Depends(get_session)):
