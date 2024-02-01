@@ -46,3 +46,5 @@ async def get_user_by_username(session: AsyncSession, username: str) -> UserBase
         if username is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
         return UserBaseSchema(**user.__dict__)
+
+
