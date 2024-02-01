@@ -1,5 +1,5 @@
 
-from jose import jwt
+import jwt
 import bcrypt
 
 from src.config import SECRET
