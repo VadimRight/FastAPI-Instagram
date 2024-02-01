@@ -25,24 +25,24 @@ router = APIRouter(
 )
 
 
-@router.post('/login', response_model=Dict)
-async def signup(
-        payload: OAuth2PasswordRequestForm = Depends(),
-        session: AsyncSession = Depends(get_session)
-):
-    user: User = await get_user_by_email(session=session, email=payload.username)
-    if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Invalid user credentials"
-        )
-    is_validated: bool = user.validate_password(payload.password)
-    if not is_validated:
-        raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
-            detail="Invalid user credentials"
-        )
-    return user.generate_token()
+# @router.post('/login', response_model=Dict)
+# async def signup(
+#         payload: OAuth2PasswordRequestForm = Depends(),
+#         session: AsyncSession = Depends(get_session)
+# ):
+#     user: User = await get_user_by_email(session=session, email=payload.username)
+#     if user is None:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="Invalid user credentials"
+#         )
+#     is_validated: bool = user.validate_password(payload.password)
+#     if not is_validated:
+#         raise HTTPException(
+#             status_code=HTTP_401_UNAUTHORIZED,
+#             detail="Invalid user credentials"
+#         )
+#     return user.generate_token()
 
 
 @router.get("/profile/{username}")
@@ -64,7 +64,7 @@ async def register(payload: CreateUserSchema = Body(),
 
 @router.get("/users/me/", response_model=UserSchema)
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)]
+    current_user: Annotated[UserSchema, Depends(get_current_active_user)]
 ):
     return current_user
 
