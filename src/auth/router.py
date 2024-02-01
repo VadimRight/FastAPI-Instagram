@@ -7,13 +7,13 @@ from sqlalchemy.orm import Session
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from src.auth.crud import create_user, get_user_by_email, get_user_by_id, get_user_by_username
+from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import UserSchema, CreateUserSchema, UserLoginSchema, UserBaseSchema
 from src.database import get_session
 from src.models.models import User
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 # setup authentication scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 router = APIRouter(
     tags=["User"]
@@ -56,3 +56,8 @@ async def register(payload: CreateUserSchema = Body(),
                    session: AsyncSession = Depends(get_session)):
     payload.hashed_password = User.hash_password(payload.hashed_password)
     return await create_user(session, payload)
+
+
+@router.get("/profile/me", response_model=UserSchema)
+async def read_user_me():
+    pass
