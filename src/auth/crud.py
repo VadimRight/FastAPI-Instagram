@@ -61,13 +61,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], sessio
     )
     # try:
     payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
-    username: str = payload.get("sub")
+    email: str = payload.get("sub")
         # if username is None:
         #     raise credentials_exception
-    token_data = TokenData(username=username)
+    token_data = TokenData(email=email)
     # except jwt.PyJWTError:
     #     raise credentials_exception
-    user = await get_user_by_username(session, username=token_data.username)
+    user = await get_user_by_email(session, email=token_data.email)
     # if user is None:
     #     raise credentials_exception
     return user
@@ -76,6 +76,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], sessio
 async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # if current_user.disabled:
+    #     raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
