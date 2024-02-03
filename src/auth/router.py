@@ -21,7 +21,7 @@ router = APIRouter(
 )
 
 
-@router.post('/login', response_model=Dict)
+@router.post('/token', response_model=Dict)
 async def signup(
         payload: OAuth2PasswordRequestForm = Depends(),
         session: AsyncSession = Depends(get_session)
