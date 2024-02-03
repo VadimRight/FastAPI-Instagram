@@ -25,24 +25,24 @@ router = APIRouter(
 )
 
 
-@router.post('/login', response_model=Dict)
-async def signup(
-        payload: OAuth2PasswordRequestForm = Depends(),
-        session: AsyncSession = Depends(get_session)
-):
-    user: User = await get_user_by_email(session=session, email=payload.username)
-    if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Invalid user credentials"
-        )
-    is_validated: bool = user.validate_password(payload.password)
-    if not is_validated:
-        raise HTTPException(
-            status_code=HTTP_401_UNAUTHORIZED,
-            detail="Invalid user credentials"
-        )
-    return user.generate_token()
+# @router.post('/login', response_model=Dict)
+# async def signup(
+#         payload: OAuth2PasswordRequestForm = Depends(),
+#         session: AsyncSession = Depends(get_session)
+# ):
+#     user: User = await get_user_by_email(session=session, email=payload.username)
+#     if user is None:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="Invalid user credentials"
+#         )
+#     is_validated: bool = user.validate_password(payload.password)
+#     if not is_validated:
+#         raise HTTPException(
+#             status_code=HTTP_401_UNAUTHORIZED,
+#             detail="Invalid user credentials"
+#         )
+#     return user.generate_token()
 
 
 @router.get("/profile/{username}")
@@ -69,20 +69,20 @@ async def read_users_me(
     return current_user
 
 
-# @router.post("/token")
-# async def login_for_access_token(
-#     form_data: OAuth2PasswordRequestForm = Depends(),
-#     session: AsyncSession = Depends(get_session)
-# ) -> Token:
-#     user = await authenticate_user(session, form_data.username, form_data.password)
-#     # if not user:
-#     #     raise HTTPException(
-#     #         status_code=status.HTTP_401_UNAUTHORIZED,
-#     #         detail="Incorrect username or password",
-#     #         headers={"WWW-Authenticate": "Bearer"},
-#     #     )
-#     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
-#     access_token = create_access_token(
-#         data={"sub": user.username}, expires_delta=access_token_expires
-#     )
-#     return Token(access_token=access_token, token_type="bearer")
+@router.post("/token")
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: AsyncSession = Depends(get_session)
+) -> Token:
+    user = await authenticate_user(session, form_data.username, form_data.password)
+    # if not user:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Incorrect username or password",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )
+    access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
