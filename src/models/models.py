@@ -56,7 +56,7 @@ class User(Base):
         """Generate access token for user"""
         return {
             "access_token": jwt.encode(
-                {"username": self.username, "email": self.email},
+                {"username": self.username, "email": self.email, "id": self.id, "is_active": self.is_active, "is_verified": self.is_verified},
                 SECRET
             )
         }
