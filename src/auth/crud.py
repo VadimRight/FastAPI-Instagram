@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from typing import Any, Annotated
+from typing import Annotated
 
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException, Depends
@@ -7,7 +7,6 @@ from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi.security import OAuth2PasswordBearer
 from starlette import status
 import jwt
 from src.auth.oauth import oauth2_scheme
@@ -29,7 +28,7 @@ async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserS
         raise HTTPException(status_code=400, detail="Username or email already registered")
 
 
-async def get_user_in_db(session: AsyncSession, username: str) -> UserInDB:
+async def get_user_in_db_schema(session: AsyncSession, username: str) -> UserInDB:
     async with session.begin():
         query = select(User).where(User.username == username)
         result = await session.execute(query)
@@ -37,22 +36,6 @@ async def get_user_in_db(session: AsyncSession, username: str) -> UserInDB:
         if username is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
         return UserInDB(**user.__dict__)
-
-
-async def get_user_by_email(session: AsyncSession, email: str) -> User:
-    async with session.begin():
-        query = select(User).where(User.email == email)
-        result = await session.execute(query)
-        return result.scalar()
-
-
-async def get_user_by_id(session: AsyncSession, id: int) -> str | User | None:
-    async with session.begin():
-        query = select(User).where(User.id == id)
-        result = await session.execute(query)
-        if id is None:
-            raise HTTPException(status_code=404, detail=f"There is no user with {id} id")
-        return result.scalar()
 
 
 async def get_user_by_username(session: AsyncSession, username: str) -> UserBaseSchema:
@@ -73,7 +56,7 @@ def verify_password(plain_password, hashed_password):
 
 
 async def authenticate_user(session: AsyncSession, username: str, password: str):
-    user = await get_user_in_db(session, username)
+    user = await get_user_in_db_schema(session, username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -110,11 +93,3 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], sessio
     # if user is None:
     #     raise credentials_exception
     return user
-
-
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    # if not current_user.is_active:
-    #     raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user

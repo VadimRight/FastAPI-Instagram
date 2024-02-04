@@ -23,11 +23,6 @@ class UserSchema(UserBaseSchema):
         from_attributes = True
 
 
-class UserLoginSchema(BaseModel):
-    email: EmailStr = Field(alias="username")
-    hashed_password: str = Field(alias="password")
-
-
 class Token(BaseModel):
     access_token: str
     token_type: str
