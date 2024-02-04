@@ -62,9 +62,9 @@ async def register(payload: CreateUserSchema = Body(),
     return await create_user(session, payload)
 
 
-@router.get("/users/me/", response_model=UserSchema)
+@router.get("/users/me/", response_model=UserBaseSchema)
 async def read_users_me(
-    current_user: Annotated[UserSchema, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(get_current_user)]
 ):
     return current_user
 
