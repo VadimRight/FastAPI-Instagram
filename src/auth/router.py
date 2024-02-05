@@ -20,6 +20,13 @@ router = APIRouter(
 )
 
 
+@router.post("/register")
+async def register(payload: CreateUserSchema = Body(),
+                   session: AsyncSession = Depends(get_session)):
+    payload.hashed_password = User.hash_password(payload.hashed_password)
+    return await create_user(session, payload)
+
+
 @router.get("/profile/{username}")
 async def profile(
         username: str,
