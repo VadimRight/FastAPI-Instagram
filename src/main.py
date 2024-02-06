@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.router import router as image_router
+from src.img_logic.router import router as image_router
 from src.auth.router import router as user_router
 app = FastAPI(
     title='Image Editor'
