@@ -1,14 +1,18 @@
 import time
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from src.database import get_session, SessionLocal
+from src.img_logic.crud import create_image
+from src.img_logic.schemas import ImageCreate
 from src.models.models import Image
 from fastapi import FastAPI, Request, Response, status
-router = APIRouter()
+router = APIRouter(
+    tags=["Image"]
+)
 
 
 @router.get("/big_picture")
@@ -27,10 +31,7 @@ async def get_image():
         return {"status": "success", "data": curr, "details": None}
 
 
-@router.post("/images")
-async def post_image(image: str):
-    async with SessionLocal() as session:
-        stock_image = Image(image=image)
-        session.add(stock_image)
-        await session.commit()
-        return {"image_added": stock_image.image}
+@router.post("/post_image")
+async def post_image(payload: ImageCreate = Body(),
+                     session: AsyncSession = Depends(get_session)):
+    return await create_image(payload, session)
