@@ -9,4 +9,3 @@ class ImageSchema(BaseModel):
 
 class ImageCreate(BaseModel):
     image: bytes
-    

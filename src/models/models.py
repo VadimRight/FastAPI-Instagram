@@ -18,7 +18,7 @@ from sqlalchemy import (
 
 class Image(Base):
     __tablename__ = 'image'
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, nullable=False)
     image = Column(LargeBinary, nullable=False)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
 
