@@ -38,14 +38,14 @@ async def get_user_in_db_schema(session: AsyncSession, username: str) -> UserInD
         return UserInDB(**user.__dict__)
 
 
-async def get_user_by_username(session: AsyncSession, username: str) -> UserBaseSchema:
+async def get_user_by_username(session: AsyncSession, username: str) -> UserSchema:
     async with session.begin():
         query = select(User).where(User.username == username)
         result = await session.execute(query)
         user = result.scalar()
         if user is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
-        return UserBaseSchema(**user.__dict__)
+        return UserSchema(**user.__dict__)
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -75,7 +75,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], session: AsyncSession = Depends(get_session)):
+async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

@@ -37,11 +37,11 @@ async def profile(
     return user
 
 
-@router.get("/users/me/", response_model=UserBaseSchema)
+@router.get("/users/me/")
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    return current_user
+    return current_user.id
 
 
 @router.post("/token")

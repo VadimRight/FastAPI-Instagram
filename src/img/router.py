@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from src.database import get_session, SessionLocal
-from src.img_logic.crud import create_image
-from src.img_logic.schemas import ImageCreate
+from src.img.crud import create_image
+from src.img.schemas import ImageCreate
 from src.models.models import Image
 from fastapi import FastAPI, Request, Response, status
 router = APIRouter(
