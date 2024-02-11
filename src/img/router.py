@@ -15,12 +15,14 @@ router = APIRouter(
 )
 
 
+# Router for testing connection to database
 @router.get("/big_picture")
 def get_long_op():
     time.sleep(2)
     return "Много много данных, которые вычислялись сто лет"
 
 
+# Router for getting all images
 @router.get("/images")
 async def get_image():
     async with SessionLocal() as session:
@@ -31,6 +33,7 @@ async def get_image():
         return {"status": "success", "data": curr, "details": None}
 
 
+# image router with get request, which returns all images
 @router.post("/post_image")
 async def post_image(payload: ImageCreate = Body(),
                      session: AsyncSession = Depends(get_session)):

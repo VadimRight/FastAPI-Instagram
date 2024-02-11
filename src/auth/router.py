@@ -13,13 +13,13 @@ from src.database import get_session
 from src.models.models import User
 from fastapi.security import OAuth2PasswordRequestForm
 
-
+# User router initialization
 router = APIRouter(
     tags=["User"]
-
 )
 
 
+# Endpoint router with post request
 @router.post("/register")
 async def register(payload: CreateUserSchema = Body(),
                    session: AsyncSession = Depends(get_session)):
@@ -27,6 +27,7 @@ async def register(payload: CreateUserSchema = Body(),
     return await create_user(session, payload)
 
 
+# Endpoint for getting user by username
 @router.get("/profile/{username}")
 async def profile(
         username: str,
@@ -37,13 +38,15 @@ async def profile(
     return user
 
 
+# Endpoint for getting authenticated user (user gets himself)
 @router.get("/users/me/")
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    return current_user.id
+    return current_user
 
 
+# Endpoint for user authentication and getting token
 @router.post("/token")
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),

@@ -1,4 +1,4 @@
-from sqlalchemy.orm import declarative_base, Mapped, relationship
+from sqlalchemy.orm import declarative_base, Mapped, relationship, mapped_column
 
 Base = declarative_base()
 
@@ -15,27 +15,26 @@ from sqlalchemy import (
     String,
 )
 
-
+# Model for images
 class Image(Base):
+
     __tablename__ = 'image'
-    id = Column(Integer, primary_key=True, nullable=False)
-    image = Column(LargeBinary, nullable=False)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    user: Mapped["User"] = relationship(back_populates="user")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
+    image: Mapped[str] = mapped_column(String, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
 
 
-
-
+#  Model for user
 class User(Base):
     """Models a user table"""
     __tablename__ = "user"
-    email = Column(String(225), nullable=False, unique=True)
-    id = Column(Integer, nullable=False, primary_key=True)
-    hashed_password = Column(LargeBinary, nullable=False)
-    username = Column(String(15), nullable=False, )
-    is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    image: Mapped["Image"] = relationship(back_populates="image")
+    email: Mapped[str] = mapped_column(String(225), nullable=False, unique=True)
+    id: Mapped[int] = mapped_column(Integer, nullable=False, primary_key=True, index=True)
+    hashed_password: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+    username: Mapped[str] = mapped_column(String(15), nullable=False, )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    image: Mapped['Image'] = relationship()
 
     UniqueConstraint("email", name="uq_user_email")
     PrimaryKeyConstraint("id", name="pk_user_id")

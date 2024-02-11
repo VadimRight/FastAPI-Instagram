@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 
+# Loading secrets from .env
 load_dotenv()
 
 DB_HOST = os.environ.get("DB_HOST")
