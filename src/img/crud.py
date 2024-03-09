@@ -13,16 +13,17 @@ from src.img.schemas import ImageCreate, ImageSchema
 from src.models.models import User, Image
 
 
-async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> ImageSchema:
     try:
-        print(token)
-        token_payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
-        id: int = token_payload.get("sub")
-        token_data = TokenData(id=id)
-        image = Image(image=payload.image, user_id=token_data.id)
-        session.add(image)
-        await session.flush()
-        await session.refresh(image)
-        return ImageSchema.model_validate(image)
+        async with session.begin():
+            print(token)
+            token_payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
+            id: int = token_payload.get("sub")
+            token_data = TokenData(id=id)
+            image = Image(image=payload.image, user_id=token_data.id)
+            session.add(image)
+            await session.flush()   
+            await session.refresh(image)
+            return ImageSchema.model_validate(image)
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
