@@ -3,9 +3,9 @@ from pydantic import BaseModel
 
 class ImageSchema(BaseModel):
     id: int
-    image: bytes
+    image: str
     user_id: int
 
 
 class ImageCreate(BaseModel):
-    image: bytes
+    image: str
