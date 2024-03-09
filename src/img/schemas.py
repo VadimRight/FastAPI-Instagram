@@ -11,3 +11,6 @@ class ImageSchema(BaseModel):
     user_id: int
     class Config:
         from_attributes = True
+
+class ShowImage(ImageCreate):
+    username: str

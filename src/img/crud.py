@@ -3,13 +3,14 @@ from typing import Annotated
 from asyncpg import NotNullViolationError
 from fastapi import HTTPException, Depends
 import jwt
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import TokenData
 from src.config import ALGORITHM, SECRET
 from src.database import get_session
-from src.img.schemas import ImageCreate, ImageSchema
+from src.img.schemas import ImageCreate, ImageSchema, ShowImage
 from src.models.models import User, Image
 
 
@@ -27,3 +28,13 @@ async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme)
             return ImageSchema.model_validate(image)
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
+    
+
+async def get_image_by_username(session: AsyncSession = Depends(get_session)):
+    async with session.begin():
+        query = select(Image, User).join(User.username)
+        result = await session.execute(query)
+        images = result.scalars().all()
+        if images is None:
+            return {"detail": "User hasn't post anything yet"}
+        return ShowImage(**images.__dict__)
