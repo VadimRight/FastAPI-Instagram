@@ -29,6 +29,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
+    id: int | None = None
     username: str | None = None
 
 
