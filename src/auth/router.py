@@ -30,7 +30,6 @@ async def register(payload: CreateUserSchema = Body(),
 @router.get("/profile/{username}")
 async def profile(
         username: str,
-        token: str = Depends(oauth2_scheme),
         session: AsyncSession = Depends(get_session)):
     """Processes request to retrieve user profile by id"""
     user: User = await get_user_by_username(session, username)
