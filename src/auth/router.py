@@ -27,7 +27,7 @@ async def register(payload: CreateUserSchema = Body(),
     return await create_user(session, payload)
 
 
-@router.get("/profile/{username}")
+@router.get("/users/{username}")
 async def profile(
         username: str,
         session: AsyncSession = Depends(get_session)):

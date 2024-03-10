@@ -30,11 +30,13 @@ async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme)
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
     
 
-async def get_image_by_username(session: AsyncSession = Depends(get_session)):
+async def get_image_by_username(session: AsyncSession, username: str):
     async with session.begin():
-        query = select(Image, User).join(User.username)
+        query = select(Image).join(User).where(User.username == username)
         result = await session.execute(query)
-        images = result.scalars().all()
-        if images is None:
+        images = result.scalars()
+        if images == []:
             return {"detail": "User hasn't post anything yet"}
-        return ShowImage(**images.__dict__)
+        if username is None:
+            raise HTTPException(status_code=400, detail=f"User {username} does not exists")
+        return [image.image for image in images]

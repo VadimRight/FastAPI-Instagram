@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from src.database import get_session, SessionLocal
-from src.img.crud import create_image
-from src.img.schemas import ImageCreate
+from src.img.crud import create_image, get_image_by_username
+from src.img.schemas import ImageCreate, ShowImage
 from src.models.models import Image
 from fastapi import FastAPI, Request, Response, status
 from src.auth.oauth import oauth2_scheme
@@ -24,15 +24,10 @@ def get_long_op():
 
 
 # Router for getting all images
-@router.get("/images")
-async def get_image():
-    async with SessionLocal() as session:
-        q = select(Image)
-        result = await session.execute(q)
-        curr = result.scalars().all()
-        print(curr)
-        return {"status": "success", "data": curr, "details": None}
-
+@router.get("/users/{username}/images")
+async def get_image(username: str, session: AsyncSession =  Depends(get_session)):
+    images: Image = await get_image_by_username(session, username)
+    return images
 
 # image router with get request, which returns all images
 @router.post("/post_image")
