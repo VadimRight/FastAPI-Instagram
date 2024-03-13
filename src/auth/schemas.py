@@ -31,7 +31,7 @@ class Token(BaseModel):
 # Schema for storing in token username
 class TokenData(BaseModel):
     username: str | None = None
-
+    id: int | None = None
 
 # Schema for user auth by token
 class UserInDB(UserSchema):

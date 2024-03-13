@@ -5,11 +5,15 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
+from src.auth.crud import get_user_by_username
 from src.database import get_session, SessionLocal
-from src.img.crud import create_image
-from src.img.schemas import ImageCreate
-from src.models.models import Image
+from src.img.crud import create_image, get_image_by_username, get_my_image
+from src.img.schemas import ImageCreate, ShowImage
+from src.models.models import Image, User
 from fastapi import FastAPI, Request, Response, status
+from src.auth.oauth import oauth2_scheme
+
+
 router = APIRouter(
     tags=["Image"]
 )
@@ -22,19 +26,19 @@ def get_long_op():
     return "Много много данных, которые вычислялись сто лет"
 
 
-# Router for getting all images
-@router.get("/images")
-async def get_image():
-    async with SessionLocal() as session:
-        q = select(Image)
-        result = await session.execute(q)
-        curr = result.scalars().all()
-        print(curr)
-        return {"status": "success", "data": curr, "details": None}
-
+# Router for getting all images from specific user
+@router.get("/users/{username}/images")
+async def get_image(username: str, session: AsyncSession =  Depends(get_session)):
+    await get_user_by_username(session, username)
+    images: Image = await get_image_by_username(session, username)
+    return images
 
 # image router with get request, which returns all images
 @router.post("/post_image")
-async def post_image(payload: ImageCreate = Body(),
-                     session: AsyncSession = Depends(get_session)):
-    return await create_image(payload, session)
+async def post_image(payload: ImageCreate = Body(), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+    return await create_image(payload, token, session)
+
+@router.get("/profile/images")
+async def get_my_images(session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
+    images: Image = await get_my_image(session, token)
+    return images

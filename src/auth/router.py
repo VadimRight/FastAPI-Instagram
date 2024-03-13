@@ -27,19 +27,16 @@ async def register(payload: CreateUserSchema = Body(),
     return await create_user(session, payload)
 
 
-# Endpoint for getting user by username
-@router.get("/profile/{username}")
+@router.get("/users/{username}")
 async def profile(
         username: str,
-        token: str = Depends(oauth2_scheme),
         session: AsyncSession = Depends(get_session)):
     """Processes request to retrieve user profile by id"""
     user: User = await get_user_by_username(session, username)
     return user
 
 
-# Endpoint for getting authenticated user (user gets himself)
-@router.get("/users/me/")
+@router.get("/profile", response_model=UserBaseSchema)
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
@@ -61,6 +58,6 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.id}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")

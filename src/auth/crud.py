@@ -52,6 +52,17 @@ async def get_user_by_username(session: AsyncSession, username: str) -> UserSche
 
 
 # password bcrypt instance
+async def get_user_by_id(session: AsyncSession, id: int) -> UserSchema:
+    async with session.begin():
+        query = select(User).where(User.id == id)
+        result = await session.execute(query)
+        user = result.scalar()
+        if user is None:
+            raise HTTPException(status_code=404, detail=f"There is no user with {id} username")
+        return UserSchema(**user.__dict__)
+
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -90,14 +101,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
         headers={"WWW-Authenticate": "Bearer"},
     )
     # try:
-    payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
-    username: str = payload.get("sub")
+    print(token)
+    token_bytes = token.encode("utf-8")
+    payload = jwt.decode(token_bytes, SECRET, algorithms=[ALGORITHM])
+    id: int = payload.get("sub")
         # if username is None:
         #     raise credentials_exception
-    token_data = TokenData(username=username)
+    token_data = TokenData(id=id)
     # except jwt.PyJWTError:
     #     raise credentials_exception
-    user = await get_user_by_username(session, username=token_data.username)
+    user: User = await get_user_by_id(session, id=token_data.id)
     # if user is None:
     #     raise credentials_exception
     return user
