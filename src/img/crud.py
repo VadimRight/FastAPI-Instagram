@@ -17,7 +17,6 @@ from src.models.models import User, Image
 async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> ImageSchema:
     try:
         async with session.begin():
-            print(token)
             token_payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
             id: int = token_payload.get("sub")
             token_data = TokenData(id=id)
@@ -37,6 +36,19 @@ async def get_image_by_username(session: AsyncSession, username: str):
         images = result.scalars()
         if images == []:
             return {"detail": "User hasn't post anything yet"}
-        if username is None:
-            raise HTTPException(status_code=400, detail=f"User {username} does not exists")
         return [image.image for image in images]
+    
+async def get_my_image(session: AsyncSession, token: str):
+    try:
+        async with session.begin():
+            token_payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
+            id: int = token_payload.get("sub")
+            token_data = TokenData(id=id)
+            query = select(Image).join(User).where(User.id == token_data.id)
+            result = await session.execute(query)
+            my_images = result.scalars()
+            if my_images == []:
+                return {"detail": "You haven't posted anything yet"}
+            return [image.image for image in my_images]
+    except NotNullViolationError:
+        raise HTTPException(status_code=400, detail="Please, fill the form properly")
