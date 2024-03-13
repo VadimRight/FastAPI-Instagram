@@ -36,7 +36,7 @@ async def profile(
     return user
 
 
-@router.get("/users/me/", response_model=UserBaseSchema)
+@router.get("/profile", response_model=UserBaseSchema)
 async def read_users_me(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
