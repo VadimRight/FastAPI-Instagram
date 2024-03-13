@@ -5,10 +5,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
+from src.auth.crud import get_user_by_username
 from src.database import get_session, SessionLocal
 from src.img.crud import create_image, get_image_by_username
 from src.img.schemas import ImageCreate, ShowImage
-from src.models.models import Image
+from src.models.models import Image, User
 from fastapi import FastAPI, Request, Response, status
 from src.auth.oauth import oauth2_scheme
 router = APIRouter(
@@ -23,9 +24,10 @@ def get_long_op():
     return "Много много данных, которые вычислялись сто лет"
 
 
-# Router for getting all images
+# Router for getting all images from specific user
 @router.get("/users/{username}/images")
 async def get_image(username: str, session: AsyncSession =  Depends(get_session)):
+    await get_user_by_username(session, username)
     images: Image = await get_image_by_username(session, username)
     return images
 
