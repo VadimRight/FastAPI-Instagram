@@ -22,6 +22,7 @@ class Image(Base):
     __tablename__ = 'image'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     image: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
     user: Mapped["User"] = relationship()
 
