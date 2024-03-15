@@ -15,4 +15,4 @@ class ImageSchema(BaseModel):
         from_attributes = True
 
 class ShowImage(ImageCreate):
-    username: str
+    name: str
