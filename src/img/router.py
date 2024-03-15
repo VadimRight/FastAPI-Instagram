@@ -38,7 +38,11 @@ async def get_image(username: str, session: AsyncSession =  Depends(get_session)
 async def post_image(payload: ImageCreate = Body(), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await create_image(payload, token, session)
 
-@router.get("/profile/images")
+@router.get("/profile/images", response_model=ShowImage)
 async def get_my_images(session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
     images: Image = await get_my_image(session, token)
     return images
+
+@router.delete("/profile/image")
+async def delete_image( id: int, session: AsyncSession = Depends(get_session)):
+    pass

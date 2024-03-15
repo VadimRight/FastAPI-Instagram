@@ -10,7 +10,7 @@ from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import TokenData
 from src.config import ALGORITHM, SECRET
 from src.database import get_session
-from src.img.schemas import ImageCreate, ImageSchema, ShowImage
+from src.img.schemas import ImageCreate, ImageSchema
 from src.models.models import User, Image
 
 
@@ -20,7 +20,7 @@ async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme)
             token_payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
             id: int = token_payload.get("sub")
             token_data = TokenData(id=id)
-            image = Image(image=payload.image, user_id=token_data.id)
+            image = Image(image=payload.image, name = payload.name, user_id=token_data.id)
             session.add(image)
             await session.flush()   
             await session.refresh(image)
@@ -36,7 +36,7 @@ async def get_image_by_username(session: AsyncSession, username: str):
         images = result.scalars()
         if images == []:
             return {"detail": "User hasn't post anything yet"}
-        return [image.image for image in images]
+        return [image for image in images]
     
 async def get_my_image(session: AsyncSession, token: str):
     try:
@@ -52,3 +52,9 @@ async def get_my_image(session: AsyncSession, token: str):
             return [image.image for image in my_images]
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
+
+
+
+
+async def delete_image(session: AsyncSession):
+    pass

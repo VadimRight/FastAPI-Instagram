@@ -16,6 +16,7 @@ from src.database import get_session
 from src.models.models import User
 
 
+# user creation function for registration endpoint
 async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserSchema:
     try:
         async with session.begin():
@@ -28,6 +29,7 @@ async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserS
         raise HTTPException(status_code=400, detail="Username or email already registered")
 
 
+# function for getting authenticated user, which is used in code below
 async def get_user_in_db_schema(session: AsyncSession, username: str) -> UserInDB:
     async with session.begin():
         query = select(User).where(User.username == username)
@@ -38,6 +40,7 @@ async def get_user_in_db_schema(session: AsyncSession, username: str) -> UserInD
         return UserInDB(**user.__dict__)
 
 
+# Function for getting user by its username
 async def get_user_by_username(session: AsyncSession, username: str) -> UserSchema:
     async with session.begin():
         query = select(User).where(User.username == username)
@@ -48,6 +51,7 @@ async def get_user_by_username(session: AsyncSession, username: str) -> UserSche
         return UserSchema(**user.__dict__)
 
 
+# password bcrypt instance
 async def get_user_by_id(session: AsyncSession, id: int) -> UserSchema:
     async with session.begin():
         query = select(User).where(User.id == id)
@@ -62,10 +66,12 @@ async def get_user_by_id(session: AsyncSession, id: int) -> UserSchema:
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+# Password verification function for user authentication function, which is below
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
+# Authentication user function, which is used for user login and getting token in "token" endpoint
 async def authenticate_user(session: AsyncSession, username: str, password: str):
     user = await get_user_in_db_schema(session, username)
     if not user:
@@ -75,6 +81,7 @@ async def authenticate_user(session: AsyncSession, username: str, password: str)
     return user
 
 
+# Token generator function, which is used in login endpoint and getting token
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
@@ -86,6 +93,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
+# Getting current authenticated user function
 async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -93,7 +101,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
         headers={"WWW-Authenticate": "Bearer"},
     )
     # try:
-    print(token)
     token_bytes = token.encode("utf-8")
     payload = jwt.decode(token_bytes, SECRET, algorithms=[ALGORITHM])
     id: int = payload.get("sub")
@@ -106,3 +113,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
     # if user is None:
     #     raise credentials_exception
     return user
+
+
+
