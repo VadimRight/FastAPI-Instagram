@@ -1,16 +1,12 @@
-import time
 
-from fastapi import APIRouter, Depends, HTTPException, Body
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Body
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from src.auth.crud import get_user_by_username
-from src.database import get_session, SessionLocal
+from src.database import get_session
 from src.img.crud import create_image, delete_my_image, edit_image_image, edit_image_name, get_image_by_username, get_my_image
-from src.img.schemas import ImageCreate, ShowImage
-from src.models.models import Image, User
-from fastapi import FastAPI, Request, Response, status
+from src.img.schemas import ImageCreate
+from src.models.models import Image
 from src.auth.oauth import oauth2_scheme
 
 
@@ -18,12 +14,6 @@ router = APIRouter(
     tags=["Image"]
 )
 
-
-# Router for testing connection to database
-@router.get("/big_picture")
-def get_long_op():
-    time.sleep(2)
-    return "Много много данных, которые вычислялись сто лет"
 
 
 # Router for getting all images from specific user
