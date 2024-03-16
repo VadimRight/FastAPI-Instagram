@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from src.auth.crud import get_user_by_username
 from src.database import get_session, SessionLocal
-from src.img.crud import create_image, get_image_by_username, get_my_image
+from src.img.crud import create_image, delete_my_image, get_image_by_username, get_my_image
 from src.img.schemas import ImageCreate, ShowImage
 from src.models.models import Image, User
 from fastapi import FastAPI, Request, Response, status
@@ -45,4 +45,4 @@ async def get_my_images(session: AsyncSession = Depends(get_session), token: str
 
 @router.delete("/profile/image")
 async def delete_image( id: int, session: AsyncSession = Depends(get_session)):
-    pass
+    return await delete_my_image(session, id)
