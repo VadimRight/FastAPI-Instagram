@@ -6,6 +6,7 @@ import jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.auth.crud import get_id_from_token
 from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import TokenData
 from src.config import ALGORITHM, SECRET
@@ -17,8 +18,7 @@ from src.models.models import User, Image
 async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> ImageSchema:
     try:
         async with session.begin():
-            token_payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
-            id: int = token_payload.get("sub")
+            id = await get_id_from_token(token)            
             token_data = TokenData(id=id)
             image = Image(image=payload.image, name = payload.name, user_id=token_data.id)
             session.add(image)
@@ -57,5 +57,3 @@ async def get_my_image(session: AsyncSession, token: str):
 
 
 
-async def delete_image(session: AsyncSession):
-    pass
