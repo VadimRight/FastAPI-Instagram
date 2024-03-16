@@ -2,7 +2,7 @@ from typing import Annotated
 
 from asyncpg import NotNullViolationError
 from fastapi import HTTPException, Depends
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.crud import get_id_from_token
@@ -57,6 +57,25 @@ async def delete_my_image(session: AsyncSession, id: int):
     try:
         async with session.begin():
             query = delete(Image).where(Image.id == id)
+            await session.execute(query)
+    except:
+        pass
+
+
+
+async def edit_image_name(session: AsyncSession, id: int, name: str):
+    try:
+        async with session.begin():
+            query = update(Image).where(Image.id == id).values(name=name)
+            await session.execute(query)
+    except:
+        pass
+
+
+async def edit_image_image(session: AsyncSession, id: int, image: str):
+    try:
+        async with session.begin():
+            query = update(Image).where(Image.id == id).values(image=image)
             await session.execute(query)
     except:
         pass
