@@ -1,5 +1,5 @@
-import select
 import jwt
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import ALGORITHM, SECRET

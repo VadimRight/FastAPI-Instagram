@@ -133,3 +133,14 @@ async def edit_user_mail(session: AsyncSession, email: str, token: str):
     async with session.begin():
         query = update(User).where(User.id == id).values(email=email)
         await session.execute(query)
+
+
+
+async def reset_password(session: AsyncSession, new_passwd: str, token: str):
+    id =  await get_id_from_token(token)
+    owner = await verify_user(session, token, id)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    async with session.begin():
+        query = update(User).where(User.id ==id).values(hashed_password = User.hash_password(new_passwd))
+        await session.execute(query)
