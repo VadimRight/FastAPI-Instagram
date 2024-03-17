@@ -37,15 +37,15 @@ async def get_my_images(session: AsyncSession = Depends(get_session), token: str
 
 
 @router.delete("/profile/image")
-async def delete_image( id: int, session: AsyncSession = Depends(get_session)):
+async def delete_image( id: int, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
     return await delete_my_image(session, id)
 
 
 @router.put("/profile/image/edit_name")
-async def update_name(id: int, name: str, session: AsyncSession = Depends(get_session)):
+async def update_name(id: int, name: str, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
     return await edit_image_name(session, id, name)
 
 
 @router.put("/profile/image/edit_image")
-async def upgrade_image(id: int, image: str, session: AsyncSession = Depends(get_session)):
+async def upgrade_image(id: int, image: str, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
     return await edit_image_image(session, id, image)

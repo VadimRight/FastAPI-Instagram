@@ -34,7 +34,7 @@ async def get_image_by_username(session: AsyncSession, username: str):
         images = result.scalars()
         if images == []:
             return {"detail": "User hasn't post anything yet"}
-        return (ShowImage(**image.__dict__) for image in images)
+        return (image for image in images)
     
 
 async def get_my_image(session: AsyncSession, token: str):
