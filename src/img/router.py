@@ -43,9 +43,9 @@ async def delete_image( id: int, session: AsyncSession = Depends(get_session), t
 
 @router.put("/profile/image/edit_name")
 async def update_name(id: int, name: str, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
-    return await edit_image_name(session, id, name)
+    return await edit_image_name(session, id, name, token)
 
 
 @router.put("/profile/image/edit_image")
 async def upgrade_image(id: int, image: str, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
-    return await edit_image_image(session, id, image)
+    return await edit_image_image(session, id, image, token)

@@ -16,7 +16,6 @@ from src.models.models import User, Image
 async def verify_owner(session: AsyncSession, token: str, image_id) -> bool:
     async with session.begin():
         user_id = await get_id_from_token(token)
-        print('adfgoiashnfokiasofhfoiashdfonhaosidnhfoiashfoichsadoifoiajsoifad')
         query = select(Image.user_id).where(Image.id == image_id)
         result = await session.execute(query)
         owner_id = result.scalar()
@@ -69,19 +68,20 @@ async def delete_my_image(session: AsyncSession, id: int, token: str):
         query = delete(Image).where(Image.id == id)
         await session.execute(query)
 
-async def edit_image_name(session: AsyncSession, id: int, name: str):
-    try:
-        async with session.begin():
-            query = update(Image).where(Image.id == id).values(name=name)
-            await session.execute(query)
-    except:
-        pass
+async def edit_image_name(session: AsyncSession, id: int, name: str, token: str):
+    owner = await verify_owner(session, token, id)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="You dont have such permission")
+    async with session.begin():
+        query = update(Image).where(Image.id == id).values(name=name)
+        await session.execute(query)
 
 
-async def edit_image_image(session: AsyncSession, id: int, image: str):
-    try:
-        async with session.begin():
-            query = update(Image).where(Image.id == id).values(image=image)
-            await session.execute(query)
-    except:
-        pass
+
+async def edit_image_image(session: AsyncSession, id: int, image: str, token: str):
+    owner = await verify_owner(session, token, id)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="You dont have such permission")
+    async with session.begin():
+        query = update(Image).where(Image.id == id).values(image=image)
+        await session.execute(query)
