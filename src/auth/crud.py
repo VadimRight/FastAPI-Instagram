@@ -93,6 +93,11 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
+async def get_id_from_token(token: str):
+    payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
+    id: int = payload.get("sub")
+    return id
+
 # Getting current authenticated user function
 async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:
     credentials_exception = HTTPException(
@@ -101,10 +106,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
         headers={"WWW-Authenticate": "Bearer"},
     )
     # try:
-    print(token)
-    token_bytes = token.encode("utf-8")
-    payload = jwt.decode(token_bytes, SECRET, algorithms=[ALGORITHM])
-    id: int = payload.get("sub")
+    id = await get_id_from_token(token)
         # if username is None:
         #     raise credentials_exception
     token_data = TokenData(id=id)
@@ -114,3 +116,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
     # if user is None:
     #     raise credentials_exception
     return user
+
+
+
