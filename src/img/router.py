@@ -38,7 +38,7 @@ async def get_my_images(session: AsyncSession = Depends(get_session), token: str
 
 @router.delete("/profile/image")
 async def delete_image( id: int, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
-    return await delete_my_image(session, id)
+    return await delete_my_image(session, id, token)
 
 
 @router.put("/profile/image/edit_name")
