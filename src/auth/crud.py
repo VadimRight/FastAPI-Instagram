@@ -1,19 +1,19 @@
 from datetime import datetime, timezone, timedelta
-from typing import Annotated
 
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException, Depends
 from passlib.context import CryptContext
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from starlette import status
 import jwt
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import CreateUserSchema, UserSchema, UserBaseSchema, TokenData, UserInDB
+from src.auth.schemas import CreateUserSchema, UserSchema, TokenData, UserInDB
 from src.config import SECRET, ALGORITHM
 from src.database import get_session
 from src.models.models import User
+from src.verif import get_id_from_token, verify_user
 
 
 # user creation function for registration endpoint
@@ -93,10 +93,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_id_from_token(token: str):
-    payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
-    id: int = payload.get("sub")
-    return id
 
 # Getting current authenticated user function
 async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:
@@ -119,3 +115,21 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
 
 
 
+async def edit_user_username(session: AsyncSession, username: str, token: str):
+    id = await get_id_from_token(token)
+    owner = await verify_user(session, token, id)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="You dont have such permission")
+    async with session.begin():
+        query = update(User).where(User.id == id).values(username=username)
+        await session.execute(query)
+
+
+async def edit_user_mail(session: AsyncSession, email: str, token: str):
+    id = await get_id_from_token(token)
+    owner = await verify_user(session, token, id)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="You dont have such permission")
+    async with session.begin():
+        query = update(User).where(User.id == id).values(email=email)
+        await session.execute(query)

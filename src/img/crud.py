@@ -5,21 +5,14 @@ from fastapi import HTTPException, Depends
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.crud import get_id_from_token
 from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import TokenData
 from src.database import get_session
 from src.img.schemas import ImageCreate, ImageSchema, ShowImage
 from src.models.models import User, Image
+from src.verif import get_id_from_token, verify_owner
 
 
-async def verify_owner(session: AsyncSession, token: str, image_id) -> bool:
-    async with session.begin():
-        user_id = await get_id_from_token(token)
-        query = select(Image.user_id).where(Image.id == image_id)
-        result = await session.execute(query)
-        owner_id = result.scalar()
-        return owner_id == user_id
 
 async def create_image(payload: ImageCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> ImageSchema:
     try:
