@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth.crud import get_user_by_username
 from src.database import get_session
-from src.img.crud import create_image, delete_my_image, edit_image_image, edit_image_name, get_image_by_username, get_my_image
+from src.post.crud import create_image, delete_my_image, edit_image_image, edit_image_name, get_image_by_username, get_my_image
 from src.auth.oauth import oauth2_scheme
-from src.img.schemas import PostCreate
+from src.post.schemas import PostCreate
 from src.models.models import Post
 
 

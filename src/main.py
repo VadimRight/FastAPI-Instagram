@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.img.router import router as image_router
+from src.post.router import router as image_router
 from src.auth.router import router as user_router
 
 # FastAPI App initialization

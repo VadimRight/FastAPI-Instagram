@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import TokenData
 from src.database import get_session
-from src.img.schemas import PostCreate, PostSchema
+from src.post.schemas import PostCreate, PostSchema
 from src.models.models import Post, User
 from src.verif import get_id_from_token, verify_owner
 

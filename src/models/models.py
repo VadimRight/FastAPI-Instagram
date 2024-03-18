@@ -9,7 +9,7 @@ import jwt
 import bcrypt
 
 from src.config import SECRET
-from sqlalchemy import Column, LargeBinary, ForeignKey, Boolean, \
+from sqlalchemy import Column, LargeBinary, ForeignKey, Boolean, Text, \
     UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import (
     Integer,
@@ -19,12 +19,34 @@ from sqlalchemy import (
 # Model for images
 class Post(Base):
 
-    __tablename__ = 'image'
+    __tablename__ = 'post'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     image: Mapped[str] = mapped_column(String, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
+    text: Mapped[str] = mapped_column(Text)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
     user: Mapped["User"] = relationship()
+
+
+class Comment(Base):
+    __tablename__ = 'comment'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
+    post_id: Mapped[int] = mapped_column(Integer, ForeignKey("post.id"), nullable=False)   
+    user: Mapped["User"] = relationship()
+    post: Mapped["Post"] = relationship() 
+
+
+class Like(Base):
+    __tablename__ = 'like'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
+    comment_id: Mapped[int] = mapped_column(Integer, ForeignKey("comment.id"))
+    post_id: Mapped[int] = mapped_column(Integer, ForeignKey("post.id"))
+    user: Mapped["User"] = relationship()
+    post: Mapped["Post"] = relationship() 
+    comment: Mapped["Comment"] = relationship()
 
 
 #  Model for user
