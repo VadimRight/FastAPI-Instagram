@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel
 
 # Pydantic schema for get image request
 
@@ -7,9 +7,9 @@ class PostCreate(BaseModel):
     name: str
 
 class PostSchema(BaseModel):
-    id: int
+    id: UUID4
     image: str
-    user_id: int
+    user_id: str
     name: str
 
     class Config:

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import UUID4, BaseModel, Field, EmailStr
 
 
 # Schema for getting user and superclass for other schemas
@@ -14,7 +14,7 @@ class CreateUserSchema(UserBaseSchema):
 
 #  Schema for getting User with all rows
 class UserSchema(UserBaseSchema):
-    id: int
+    id: UUID4
     is_active: bool = True
     is_verified: bool = False
 
@@ -31,7 +31,7 @@ class Token(BaseModel):
 # Schema for storing in token username
 class TokenData(BaseModel):
     username: str | None = None
-    id: int | None = None
+    id: UUID4 | None = None
 
 # Schema for user auth by token
 class UserInDB(UserSchema):

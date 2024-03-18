@@ -14,13 +14,13 @@ from src.config import SECRET, ALGORITHM
 from src.database import get_session
 from src.models.models import User
 from src.verif import get_id_from_token, verify_user
-
+from uuid import uuid4
 
 # user creation function for registration endpoint
 async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserSchema:
     try:
         async with session.begin():
-            user = User(username=payload.username, email=payload.email, hashed_password=payload.hashed_password)
+            user = User(id = uuid4(), username=payload.username, email=payload.email, hashed_password=payload.hashed_password)
             session.add(user)
             await session.flush()
             await session.refresh(user)

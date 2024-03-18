@@ -1,6 +1,6 @@
 from typing import List
+import uuid
 from sqlalchemy.orm import declarative_base, Mapped, relationship, mapped_column
-
 Base = declarative_base()
 
 
@@ -9,7 +9,7 @@ import jwt
 import bcrypt
 
 from src.config import SECRET
-from sqlalchemy import Column, LargeBinary, ForeignKey, Boolean, Text, \
+from sqlalchemy import UUID, Column, LargeBinary, ForeignKey, Boolean, Text, \
     UniqueConstraint, PrimaryKeyConstraint
 from sqlalchemy import (
     Integer,
@@ -20,30 +20,30 @@ from sqlalchemy import (
 class Post(Base):
 
     __tablename__ = 'post'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
     image: Mapped[str] = mapped_column(String, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(UUID, ForeignKey("user.id"), nullable=False)
     user: Mapped["User"] = relationship()
 
 
 class Comment(Base):
     __tablename__ = 'comment'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
-    post_id: Mapped[int] = mapped_column(Integer, ForeignKey("post.id"), nullable=False)   
+    user_id: Mapped[str] = mapped_column(UUID, ForeignKey("user.id"), nullable=False)
+    post_id: Mapped[str] = mapped_column(UUID, ForeignKey("post.id"), nullable=False)   
     user: Mapped["User"] = relationship()
     post: Mapped["Post"] = relationship() 
 
 
 class Like(Base):
     __tablename__ = 'like'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
-    comment_id: Mapped[int] = mapped_column(Integer, ForeignKey("comment.id"))
-    post_id: Mapped[int] = mapped_column(Integer, ForeignKey("post.id"))
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
+    user_id: Mapped[int] = mapped_column(UUID, ForeignKey("user.id"), nullable=False)
+    comment_id: Mapped[str] = mapped_column(UUID, ForeignKey("comment.id"))
+    post_id: Mapped[str] = mapped_column(UUID, ForeignKey("post.id"))
     user: Mapped["User"] = relationship()
     post: Mapped["Post"] = relationship() 
     comment: Mapped["Comment"] = relationship()
@@ -53,13 +53,13 @@ class Like(Base):
 class User(Base):
     """Models a user table"""
     __tablename__ = "user"
+    id: Mapped[str] = mapped_column(UUID, nullable=False, primary_key=True, index=True)
     email: Mapped[str] = mapped_column(String(225), nullable=False, unique=True)
-    id: Mapped[int] = mapped_column(Integer, nullable=False, primary_key=True, index=True)
     hashed_password: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     username: Mapped[str] = mapped_column(String(15), nullable=False, )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    image: Mapped[List['Post']] = relationship()
+    post: Mapped[List['Post']] = relationship()
 
  
     def __repr__(self):
