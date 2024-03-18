@@ -38,11 +38,10 @@ async def profile(
     return user
 
 
-@router.get("/profile", response_model=UserBaseSchema)
-async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    return current_user
+@router.get("/profile", response_model=UserSchema)
+async def read_users_me(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+    user: User = await get_current_user(token, session)
+    return user
 
 
 # Endpoint for user authentication and getting token
@@ -69,7 +68,6 @@ async def login_for_access_token(
 @router.patch("/profile/username")
 async def update_username(username: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     await edit_user_username(session, username, token)
-    await get_post_by_username(session, username)
 
 @router.patch("/profile/email/")
 async def update_email(email: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
