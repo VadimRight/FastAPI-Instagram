@@ -5,9 +5,9 @@ from src.auth.router import router as user_router
 
 # FastAPI App initialization
 app = FastAPI(
-    title='Image Editor'
+    title='Instagram FastAPI'
 )
 
-# Image and User Routers are included in app
+# Post and User Routers are included in app
 app.include_router(image_router)
 app.include_router(user_router)

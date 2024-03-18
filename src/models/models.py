@@ -17,7 +17,7 @@ from sqlalchemy import (
 )
 
 # Model for images
-class Image(Base):
+class Post(Base):
 
     __tablename__ = 'image'
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -37,7 +37,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(15), nullable=False, )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    image: Mapped[List['Image']] = relationship()
+    image: Mapped[List['Post']] = relationship()
 
  
     def __repr__(self):

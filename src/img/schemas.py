@@ -2,11 +2,11 @@ from pydantic import BaseModel
 
 # Pydantic schema for get image request
 
-class ImageCreate(BaseModel):
+class PostCreate(BaseModel):
     image: str
     name: str
 
-class ImageSchema(BaseModel):
+class PostSchema(BaseModel):
     id: int
     image: str
     user_id: int
@@ -16,5 +16,5 @@ class ImageSchema(BaseModel):
         from_attributes = True
 
 
-class ShowImage(ImageCreate):
+class ShowPost(PostCreate):
     name: str

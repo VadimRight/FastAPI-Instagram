@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import ALGORITHM, SECRET
-from src.models.models import Image, User
+from src.models.models import Post, User
 
 
 
@@ -25,7 +25,7 @@ async def verify_user(session: AsyncSession, token: str, id) -> bool:
 async def verify_owner(session: AsyncSession, token: str, image_id) -> bool:
     async with session.begin():
         user_id = await get_id_from_token(token)
-        query = select(Image.user_id).where(Image.id == image_id)
+        query = select(Post.user_id).where(Post.id == image_id)
         result = await session.execute(query)
         owner_id = result.scalar()
         return owner_id == user_id
