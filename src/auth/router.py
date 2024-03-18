@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, Set
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,10 +10,10 @@ from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import UserSchema, CreateUserSchema, UserBaseSchema, Token
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from src.database import get_session
-from src.models.models import User
+from src.models.models import Post, User
 from fastapi.security import OAuth2PasswordRequestForm
-
-from src.post.crud import get_post_by_username
+from typing import List
+from src.post.crud import get_my_post, get_post_by_username
 
 # User router initialization
 router = APIRouter(
@@ -35,13 +35,16 @@ async def profile(
         session: AsyncSession = Depends(get_session)):
     """Processes request to retrieve user profile by id"""
     user: User = await get_user_by_username(session, username)
-    return user
+    await get_user_by_username(session, username)
+    posts: Post = await get_post_by_username(session, username)
+    return user, posts
 
 
-@router.get("/profile", response_model=UserSchema)
+@router.get("/profile")
 async def read_users_me(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     user: User = await get_current_user(token, session)
-    return user
+    posts: Set[Post] = await get_my_post(session, token)
+    return user, posts
 
 
 # Endpoint for user authentication and getting token
@@ -65,11 +68,11 @@ async def login_for_access_token(
 
 
 
-@router.patch("/profile/username")
+@router.patch("/profile/change_username")
 async def update_username(username: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     await edit_user_username(session, username, token)
 
-@router.patch("/profile/email/")
+@router.patch("/profile/change_email/")
 async def update_email(email: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await edit_user_mail(session, email, token)
 

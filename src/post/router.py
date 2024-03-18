@@ -37,8 +37,8 @@ async def post_image(payload: PostCreate = Body(), token: str = Depends(oauth2_s
 
 @router.get("/profile/posts")
 async def get_my_images(session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
-    images: Post = await get_my_post(session, token)
-    return images
+    posts: Post = await get_my_post(session, token)
+    return posts
 
 
 @router.delete("/profile/posts")

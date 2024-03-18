@@ -103,7 +103,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
     )
     # try:
     id = await get_id_from_token(token)
-    print(id)
         # if username is None:
         #     raise credentials_exception
     token_data = TokenData(id=id)
