@@ -4,13 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import ALGORITHM, SECRET
 from src.models.models import Post, User
-
+import uuid
 
 
 async def get_id_from_token(token: str):
     payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
-    id: int = payload.get("sub")
-    return id
+    id: str = payload.get("sub")
+    return uuid.UUID(id)
 
 
 async def verify_user(session: AsyncSession, token: str, id) -> bool:
