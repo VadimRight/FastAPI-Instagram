@@ -14,7 +14,7 @@ from src.verif import get_id_from_token, verify_owner
 
 
 
-async def create_image(payload: PostCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
+async def create_post(payload: PostCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
     try:
         async with session.begin():
             id = await get_id_from_token(token)            
@@ -28,17 +28,24 @@ async def create_image(payload: PostCreate, token: str = Depends(oauth2_scheme),
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
     
 
-async def get_image_by_username(session: AsyncSession, username: str):
+async def get_post_by_username(session: AsyncSession, username: str):
     async with session.begin():
         query = select(Post).join(User).where(User.username == username)
         result = await session.execute(query)
-        images = result.scalars()
-        if images == []:
+        posts = result.scalars()
+        if posts == []:
             return {"detail": "User hasn't post anything yet"}
-        return (image for image in images)
+        return (post for post in posts)
     
+async def get_post_by_id(session: AsyncSession, id: int):
+    async with session.begin():
+        query = select(Post).where(Post.id == id)
+        result = await session.execute(query)
+        post = result.scalar()
+        if post is None:
+            raise HTTPException(status_code=400)
 
-async def get_my_image(session: AsyncSession, token: str):
+async def get_my_post(session: AsyncSession, token: str):
     try:
         async with session.begin():
             id = await get_id_from_token(token)
@@ -53,7 +60,7 @@ async def get_my_image(session: AsyncSession, token: str):
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
 
 
-async def delete_my_image(session: AsyncSession, id: int, token: str):
+async def delete_my_post(session: AsyncSession, id: int, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
@@ -61,7 +68,8 @@ async def delete_my_image(session: AsyncSession, id: int, token: str):
         query = delete(Post).where(Post.id == id)
         await session.execute(query)
 
-async def edit_image_name(session: AsyncSession, id: int, name: str, token: str):
+
+async def edit_post_name(session: AsyncSession, id: int, name: str, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
@@ -71,7 +79,7 @@ async def edit_image_name(session: AsyncSession, id: int, name: str, token: str)
 
 
 
-async def edit_image_image(session: AsyncSession, id: int, image: str, token: str):
+async def edit_post_image(session: AsyncSession, id: int, image: str, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")

@@ -13,6 +13,8 @@ from src.database import get_session
 from src.models.models import User
 from fastapi.security import OAuth2PasswordRequestForm
 
+from src.post.crud import get_post_by_username
+
 # User router initialization
 router = APIRouter(
     tags=["User"]
@@ -64,13 +66,13 @@ async def login_for_access_token(
 
 
 
-@router.patch("/profile/username/")
+@router.patch("/profile/username")
 async def update_username(username: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
-    return await edit_user_username(session, username, token)
-
+    await edit_user_username(session, username, token)
+    await get_post_by_username(session, username)
 
 @router.patch("/profile/email/")
-async def update_username(email: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+async def update_email(email: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await edit_user_mail(session, email, token)
 
 
