@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import uuid4
 
 from asyncpg import NotNullViolationError
 from fastapi import HTTPException, Depends
@@ -11,14 +12,14 @@ from src.database import get_session
 from src.post.schemas import PostCreate, PostSchema
 from src.models.models import Post, User
 from src.verif import get_id_from_token, verify_owner
-
+import uuid
 
 async def create_post(payload: PostCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
     try:
         async with session.begin():
-            id = await get_id_from_token(token)            
-            token_data = TokenData(id=id)
-            image = Post(image=payload.image, name = payload.name, user_id=token_data.id)
+            user_id = await get_id_from_token(token)
+            # user_id = uuid.UUID(user_id)
+            image = Post(id = uuid4(), image=payload.image, name = payload.name, user_id=user_id)
             session.add(image)
             await session.flush()   
             await session.refresh(image)
@@ -37,7 +38,7 @@ async def get_post_by_username(session: AsyncSession, username: str):
         return (post for post in posts)
 
     
-async def get_post_by_id(session: AsyncSession, id: int):
+async def get_post_by_id(session: AsyncSession, id: str):
     async with session.begin():
         query = select(Post).where(Post.id == id)
         result = await session.execute(query)
@@ -62,7 +63,7 @@ async def get_my_post(session: AsyncSession, token: str):
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
 
 
-async def delete_my_post(session: AsyncSession, id: int, token: str):
+async def delete_my_post(session: AsyncSession, id: str, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
@@ -71,7 +72,7 @@ async def delete_my_post(session: AsyncSession, id: int, token: str):
         await session.execute(query)
 
 
-async def edit_post_name(session: AsyncSession, id: int, name: str, token: str):
+async def edit_post_name(session: AsyncSession, id: str, name: str, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
@@ -80,7 +81,7 @@ async def edit_post_name(session: AsyncSession, id: int, name: str, token: str):
         await session.execute(query)
 
 
-async def edit_post_image(session: AsyncSession, id: int, image: str, token: str):
+async def edit_post_image(session: AsyncSession, id: str, image: str, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")

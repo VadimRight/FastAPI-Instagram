@@ -9,7 +9,7 @@ class PostCreate(BaseModel):
 class PostSchema(BaseModel):
     id: UUID4
     image: str
-    user_id: str
+    user_id: UUID4
     name: str
 
     class Config:
