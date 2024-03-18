@@ -72,9 +72,12 @@ async def login_for_access_token(
 async def update_username(username: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     await edit_user_username(session, username, token)
 
+
+
 @router.patch("/profile/change_email/")
 async def update_email(email: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await edit_user_mail(session, email, token)
+
 
 
 @router.patch("/profile/reset_passwd")

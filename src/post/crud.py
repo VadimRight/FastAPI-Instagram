@@ -13,7 +13,6 @@ from src.models.models import Post, User
 from src.verif import get_id_from_token, verify_owner
 
 
-
 async def create_post(payload: PostCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
     try:
         async with session.begin():
@@ -36,6 +35,7 @@ async def get_post_by_username(session: AsyncSession, username: str):
         if posts == []:
             return {"detail": "User hasn't post anything yet"}
         return (post for post in posts)
+
     
 async def get_post_by_id(session: AsyncSession, id: int):
     async with session.begin():
@@ -44,6 +44,8 @@ async def get_post_by_id(session: AsyncSession, id: int):
         post = result.scalar()
         if post is None:
             raise HTTPException(status_code=400)
+        return post
+
 
 async def get_my_post(session: AsyncSession, token: str):
     try:
@@ -76,7 +78,6 @@ async def edit_post_name(session: AsyncSession, id: int, name: str, token: str):
     async with session.begin():
         query = update(Post).where(Post.id == id).values(name=name)
         await session.execute(query)
-
 
 
 async def edit_post_image(session: AsyncSession, id: int, image: str, token: str):
