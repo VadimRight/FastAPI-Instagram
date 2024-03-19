@@ -43,8 +43,8 @@ async def get_my_images(session: AsyncSession = Depends(get_session), token: str
 
 
 @router.get("/profile/posts={id}")
-async def get_spesfic_post(username: str, id: str, session: AsyncSession = Depends(get_session)):
-    await get_user_by_username(session, username)
+async def get_spesfic_post(id: str, session: AsyncSession = Depends(get_session)):
+    await get_user_by_username(session)
     post: Post = await get_post_by_id(session, id)
     return post
 
