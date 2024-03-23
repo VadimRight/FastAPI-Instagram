@@ -12,12 +12,13 @@ from src.auth.oauth import oauth2_scheme
 
 
 
-async def create_comment(payload: CommentCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
+async def create_comment(posts_id, payload: CommentCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
     try:
         async with session.begin():
-            id = await get_id_from_token(token)            
-            token_data = TokenData(id=id)
-            comment = Comment(id = uuid4(), image=payload.image, name = payload.name, user_id=token_data.id)
+            user_id = await get_id_from_token(token)            
+            # token_data = TokenData(id=id)
+            comment = Comment(id = uuid4(), text=payload.text, user_id=user_id, post_id=posts_id)
+            print(comment)
             session.add(comment)
             await session.flush()  
             await session.refresh(comment)

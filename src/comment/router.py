@@ -20,4 +20,4 @@ router = APIRouter(
 async def post_comment(post_id, payload: CommentCreate = Body(), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     # username = await get_username_by_post_id(session, post_id)
     # await get_user_by_username(session, username)
-    return await create_comment(payload, token, session)
+    return await create_comment(post_id, payload, token, session)
