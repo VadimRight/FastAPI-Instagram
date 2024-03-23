@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Body, Depends
 
 from src.auth.crud import get_user_by_username
-from src.comment.crud import create_comment
+from src.comment.crud import create_comment, get_comments_by_post_id
 from src.comment.schemas import CommentCreate
 from src.database import get_session
 from src.auth.oauth import oauth2_scheme
@@ -21,3 +21,7 @@ async def post_comment(post_id, payload: CommentCreate = Body(), token: str = De
     # username = await get_username_by_post_id(session, post_id)
     # await get_user_by_username(session, username)
     return await create_comment(post_id, payload, token, session)
+
+@router.get("/user/{username}/post={id}")
+async def get_commts(post_id, session: AsyncSession = Depends(get_session)):
+    return await get_comments_by_post_id(session, post_id)

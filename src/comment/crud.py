@@ -34,5 +34,5 @@ async def get_comments_by_post_id(session: AsyncSession, post_id: str):
         result = await session.execute(query)
         comments = result.scalars()
         if comments == []:
-            raise HTTPException(status_code=400)
+            return  {"details": "There no any comments yet"}
         return [comment for comment in comments]
