@@ -1,7 +1,7 @@
 
 from fastapi import APIRouter, Body, Depends
 
-from src.comment.crud import create_comment, delete_my_comment, get_comments_by_post_id
+from src.comment.crud import create_comment, delete_my_comment, get_comments_by_post_id, update_comment_text
 from src.comment.schemas import CommentCreate
 from src.database import get_session
 from src.auth.oauth import oauth2_scheme
@@ -21,12 +21,15 @@ async def post_comment(post_id, payload: CommentCreate = Body(), token: str = De
     return await create_comment(post_id, payload, token, session)
 
 
-@router.get("/user/{username}/post={id}")
-async def get_commts(post_id, session: AsyncSession = Depends(get_session)):
+@router.get("/users/{username}/posts={id}")
+async def get_commts(post_id: str, session: AsyncSession = Depends(get_session)):
     return await get_comments_by_post_id(session, post_id)
 
 
-@router.delete("/user/{username}/post={id}")
-async def delete_commts(comment_id, session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
+@router.delete("/users/{username}/posts={id}")
+async def delete_commt(comment_id: str, session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
     return await delete_my_comment(session, comment_id, token)
 
+@router.patch("/users/{username}/posts={id}")
+async def edit_commt(comment_id: str, text: str, session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
+    return await update_comment_text(session, id, token, text)
