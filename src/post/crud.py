@@ -48,6 +48,15 @@ async def get_post_by_id(session: AsyncSession, id: str):
         return post
 
 
+async def get_username_by_post_id(session: AsyncSession, id: str):
+        async with session.begin():
+            query = select(User.username).where(User.id == Post.user_id)
+            result = await session.execute(query)
+            username = result.scalar
+            if username is None:
+                raise HTTPException(status_code=404)
+            return username
+
 async def get_my_post(session: AsyncSession, token: str):
     try:
         async with session.begin():

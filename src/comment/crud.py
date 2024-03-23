@@ -1,3 +1,4 @@
+from uuid import uuid4
 from asyncpg import NotNullViolationError
 from fastapi import Depends, HTTPException
 from src.auth.schemas import TokenData
@@ -9,8 +10,6 @@ from src.verif import get_id_from_token
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.oauth import oauth2_scheme
 
-# async def get_username_by_post_id()
-
 
 
 async def create_comment(payload: CommentCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
@@ -18,11 +17,11 @@ async def create_comment(payload: CommentCreate, token: str = Depends(oauth2_sch
         async with session.begin():
             id = await get_id_from_token(token)            
             token_data = TokenData(id=id)
-            image = Comment(image=payload.image, name = payload.name, user_id=token_data.id)
-            session.add(image)
-            await session.flush()   
-            await session.refresh(image)
-            return CommentShema.model_validate(image)
+            comment = Comment(id = uuid4(), image=payload.image, name = payload.name, user_id=token_data.id)
+            session.add(comment)
+            await session.flush()  
+            await session.refresh(comment)
+            return CommentShema.model_validate(comment)
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
 
