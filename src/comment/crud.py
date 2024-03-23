@@ -1,13 +1,12 @@
 from uuid import uuid4
 from asyncpg import NotNullViolationError
 from fastapi import Depends, HTTPException
-from sqlalchemy import select
-from src.auth.schemas import TokenData
+from sqlalchemy import delete, select
 from src.comment.schemas import CommentCreate, CommentShema
 from src.database import get_session
-from src.models.models import Comment
+from src.models.models import Comment, Post
 from src.post.schemas import PostSchema
-from src.verif import get_id_from_token
+from src.verif import get_id_from_token, verify_owner_comment
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.oauth import oauth2_scheme
 
@@ -36,3 +35,14 @@ async def get_comments_by_post_id(session: AsyncSession, post_id: str):
         if comments == []:
             return  {"details": "There no any comments yet"}
         return [comment for comment in comments]
+
+
+
+async def delete_my_comment(session: AsyncSession, id: str, token: str):
+    owner = await verify_owner_comment(session, token, id)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="You dont have such permission")
+    async with session.begin():
+        query = delete(Post).where(Post.id == id)
+        await session.execute(query)
+        
