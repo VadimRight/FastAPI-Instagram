@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 import asyncio
-
+from src.database import metadata
 from sqlalchemy.ext.asyncio import async_engine_from_config
 import os, sys
 sys.path.append(os.path.join(sys.path[0], 'src'))
@@ -30,7 +30,7 @@ config.set_section_option(section, "DB_PORT", "5432")
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+target_metadata = [metadata, Base.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
