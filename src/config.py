@@ -14,3 +14,8 @@ ALGORITHM = os.environ.get("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 
+DB_HOST_TEST = os.environ.get("DB_HOST_TEST")
+DB_PORT_TEST = os.environ.get("DB_PORT_TEST")
+DB_NAME_TEST = os.environ.get("DB_NAME_TEST")
+DB_PASSWORD_TEST = os.environ.get("DB_PASSWORD_TEST")
+DB_USER_TEST = os.environ.get("DB_PASSWORD_TEST")
