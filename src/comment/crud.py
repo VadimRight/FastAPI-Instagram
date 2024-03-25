@@ -16,9 +16,7 @@ async def create_comment(posts_id, payload: CommentCreate, token: str = Depends(
     try:
         async with session.begin():
             user_id = await get_id_from_token(token)            
-            # token_data = TokenData(id=id)
             comment = Comment(id = uuid4(), text=payload.text, user_id=user_id, post_id=posts_id)
-            print(comment)
             session.add(comment)
             await session.flush()  
             await session.refresh(comment)
