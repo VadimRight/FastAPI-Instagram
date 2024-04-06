@@ -47,4 +47,5 @@ class TokenData(BaseModel):
 
 # Schema for user auth by token
 class UserInDB(UserResponceSchema):
+    id: UUID4
     hashed_password: str
