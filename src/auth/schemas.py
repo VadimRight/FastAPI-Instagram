@@ -8,13 +8,25 @@ class UserBaseSchema(BaseModel):
 
 
 # Schema for user registration
-class CreateUserSchema(UserBaseSchema):
+class CreateUserResponceSchema(UserBaseSchema):
     hashed_password: str = Field(alias="password")
 
 
 #  Schema for getting User with all rows
-class UserSchema(UserBaseSchema):
+class UserSchema(BaseModel):
     id: UUID4
+    username: str
+    email: EmailStr
+    is_active: bool = True
+    is_verified: bool = False
+
+    class Config:
+        from_attributes = True
+
+
+class UserResponceSchema(BaseModel):
+    username: str
+    email: EmailStr
     is_active: bool = True
     is_verified: bool = False
 
@@ -34,5 +46,5 @@ class TokenData(BaseModel):
     id: UUID4 | None = None
 
 # Schema for user auth by token
-class UserInDB(UserSchema):
+class UserInDB(UserResponceSchema):
     hashed_password: str

@@ -3,7 +3,8 @@ from typing import AsyncGenerator
 from fastapi.testclient import TestClient
 import pytest
 from sqlalchemy import NullPool
-from src.database import get_session, metadata
+from src.database import get_session
+from src.models.models import metadata
 from src.config import DB_HOST_TEST, DB_NAME_TEST, DB_PASSWORD_TEST, DB_PORT_TEST, DB_USER_TEST
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from src.main import app

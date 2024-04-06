@@ -7,7 +7,7 @@ from starlette import status
 
 from src.auth.crud import create_user, edit_user_mail, edit_user_username, get_user_by_username, authenticate_user, create_access_token, get_current_user, reset_password
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import UserSchema, CreateUserSchema, UserBaseSchema, Token
+from src.auth.schemas import UserResponceSchema, CreateUserResponceSchema, UserBaseSchema, Token
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from src.database import get_session
 from src.models.models import Post, User
@@ -23,7 +23,7 @@ router = APIRouter(
 
 # Endpoint router with post request
 @router.post("/register")
-async def register(payload: CreateUserSchema = Body(),
+async def register(payload: CreateUserResponceSchema = Body(),
                    session: AsyncSession = Depends(get_session)):
     payload.hashed_password = User.hash_password(payload.hashed_password)
     return await create_user(session, payload)

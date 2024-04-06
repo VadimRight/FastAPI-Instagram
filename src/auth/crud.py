@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 import jwt
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import CreateUserSchema, UserSchema, TokenData, UserInDB
+from src.auth.schemas import CreateUserResponceSchema, UserResponceSchema, TokenData, UserInDB
 from src.config import SECRET, ALGORITHM
 from src.database import get_session
 from src.models.models import User
@@ -17,14 +17,14 @@ from src.verif import get_id_from_token, verify_user
 from uuid import uuid4
 
 # user creation function for registration endpoint
-async def create_user(session: AsyncSession, payload: CreateUserSchema) -> UserSchema:
+async def create_user(session: AsyncSession, payload: CreateUserResponceSchema) -> UserResponceSchema:
     try:
         async with session.begin():
             user = User(id = uuid4(), username=payload.username, email=payload.email, hashed_password=payload.hashed_password)
             session.add(user)
             await session.flush()
             await session.refresh(user)
-            return UserSchema.model_validate(user)
+            return UserResponceSchema.model_validate(user)
     except UniqueViolationError:
         raise HTTPException(status_code=400, detail="Username or email already registered")
 
@@ -41,25 +41,25 @@ async def get_user_in_db_schema(session: AsyncSession, username: str) -> UserInD
 
 
 # Function for getting user by its username
-async def get_user_by_username(session: AsyncSession, username: str) -> UserSchema:
+async def get_user_by_username(session: AsyncSession, username: str) -> UserResponceSchema:
     async with session.begin():
         query = select(User).where(User.username == username)
         result = await session.execute(query)
         user = result.scalar()
         if user is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {username} username")
-        return UserSchema(**user.__dict__)
+        return UserResponceSchema(**user.__dict__)
 
 
 # password bcrypt instance
-async def get_user_by_id(session: AsyncSession, id: int) -> UserSchema:
+async def get_user_by_id(session: AsyncSession, id: int) -> UserResponceSchema:
     async with session.begin():
         query = select(User).where(User.id == id)
         result = await session.execute(query)
         user = result.scalar()
         if user is None:
             raise HTTPException(status_code=404, detail=f"There is no user with {id} username")
-        return UserSchema(**user.__dict__)
+        return UserResponceSchema(**user.__dict__)
 
 
 
@@ -111,7 +111,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
     user: User = await get_user_by_id(session, id=token_data.id)
     # if user is None:
     #     raise credentials_exception
-    return UserSchema(**user.__dict__)
+    return UserResponceSchema(**user.__dict__)
 
 
 
