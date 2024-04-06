@@ -2,15 +2,14 @@ import os
 import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 import asyncio
-from src.database import metadata
+from src.models.models import metadata
 from sqlalchemy.ext.asyncio import async_engine_from_config
 import os, sys
 sys.path.append(os.path.join(sys.path[0], 'src'))
-
+from src.config import *
 from src.models.models import *
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,11 +20,11 @@ config = context.config
 # here we allow ourselves to pass interpolation vars to alembic.ini
 # fron the host env
 section = config.config_ini_section
-config.set_section_option(section, "DB_USER", "postgres")
-config.set_section_option(section, "DB_PASSWORD", "postgres")
-config.set_section_option(section, "DB_HOST", "localhost")
-config.set_section_option(section, "DB_NAME", "imageeditor")
-config.set_section_option(section, "DB_PORT", "5432")
+config.set_section_option(section, "DB_USER", DB_USER)
+config.set_section_option(section, "DB_PASSWORD", DB_PASSWORD)
+config.set_section_option(section, "DB_HOST", DB_HOST)
+config.set_section_option(section, "DB_NAME", DB_NAME)
+config.set_section_option(section, "DB_PORT", DB_PORT)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

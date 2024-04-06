@@ -6,13 +6,17 @@ Base = declarative_base()
 
 import bcrypt
 
-from sqlalchemy import UUID, LargeBinary, ForeignKey, Boolean, Text
+from sqlalchemy import UUID, LargeBinary, ForeignKey, Boolean, MetaData, Text
 from sqlalchemy import (
     String,
 )
 
+metadata = MetaData()
+
+
 # Model for images
 class Post(Base):
+    metadata
     __tablename__ = 'post'
     id: Mapped[str] = mapped_column(UUID, primary_key=True)
     image: Mapped[str] = mapped_column(String, nullable=False)
@@ -25,6 +29,7 @@ class Post(Base):
 
 class Comment(Base):
     __tablename__ = 'comment'
+    metadata
     id: Mapped[str] = mapped_column(UUID, primary_key=True)
     text: Mapped[str] = mapped_column(Text, nullable=False)
     user_id: Mapped[str] = mapped_column(UUID, ForeignKey("user.id"), nullable=False)
@@ -34,6 +39,7 @@ class Comment(Base):
 
 class Like_For_Post(Base):
     __tablename__ = 'likepost'
+    metadata
     id: Mapped[str] = mapped_column(UUID, primary_key=True)
     user_id: Mapped[int] = mapped_column(UUID, ForeignKey("user.id"), nullable=False)
     post_id: Mapped[str] = mapped_column(UUID, ForeignKey("post.id"), nullable=False)
