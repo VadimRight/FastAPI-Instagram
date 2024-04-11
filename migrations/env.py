@@ -19,11 +19,11 @@ config = context.config
 # here we allow ourselves to pass interpolation vars to alembic.ini
 # fron the host env
 section = config.config_ini_section
-config.set_section_option(section, "DB_USER", DB_USER)
-config.set_section_option(section, "DB_PASSWORD", DB_PASSWORD)
-config.set_section_option(section, "DB_HOST", DB_HOST)
-config.set_section_option(section, "DB_NAME", DB_NAME)
-config.set_section_option(section, "DB_PORT", DB_PORT)
+config.set_section_option(section, "DB_USER", str(DB_USER))
+config.set_section_option(section, "DB_PASSWORD", str(DB_PASSWORD))
+config.set_section_option(section, "DB_HOST", str(DB_HOST))
+config.set_section_option(section, "DB_NAME", str(DB_NAME))
+config.set_section_option(section, "DB_PORT", str(DB_PORT))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
