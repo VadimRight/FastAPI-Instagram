@@ -18,8 +18,7 @@ async def create_post(payload: PostCreate, token: str = Depends(oauth2_scheme), 
     try:
         async with session.begin():
             user_id = await get_id_from_token(token)
-            # user_id = uuid.UUID(user_id)
-            image = Post(id = uuid4(), image=payload.image, name = payload.name, user_id=user_id)
+            image = Post(id = uuid4(), text=payload.text,image=payload.image, name = payload.name, user_id=user_id)
             session.add(image)
             await session.flush()   
             await session.refresh(image)

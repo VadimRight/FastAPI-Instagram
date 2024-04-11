@@ -4,6 +4,7 @@ from pydantic import UUID4, BaseModel
 
 class PostCreate(BaseModel):
     image: str
+    text: str
     name: str
 
 class PostSchema(BaseModel):
