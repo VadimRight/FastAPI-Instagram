@@ -8,7 +8,7 @@ from src.auth.oauth import oauth2_scheme
 from src.post.crud import create_post, delete_my_post, edit_post_image, edit_post_name, get_my_post, get_post_by_id, get_post_by_username
 from src.post.schemas import PostCreate
 from src.models.models import Post
-
+from fastapi import File, UploadFile
 
 router = APIRouter(
     tags=["Post"]
@@ -32,8 +32,8 @@ async def get_spesfic_post(username: str, id: str, session: AsyncSession = Depen
 
 # image router with get request, which returns all images
 @router.post("/new_post")
-async def post_image(payload: PostCreate = Body(), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
-    return await create_post(payload, token, session)
+async def post_image(text, name, image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+    return await create_post(text, name, image, token, session)
 
 
 @router.get("/profile/posts")

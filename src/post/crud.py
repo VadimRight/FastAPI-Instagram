@@ -12,17 +12,16 @@ from src.database import get_session
 from src.post.schemas import PostCreate, PostSchema
 from src.models.models import Post, User
 from src.verif import get_id_from_token, verify_owner
-import uuid
+from fastapi import UploadFile
 
-async def create_post(payload: PostCreate, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> PostSchema:
+async def create_post(name, text, post_image: UploadFile, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     try:
         async with session.begin():
             user_id = await get_id_from_token(token)
-            image = Post(id = uuid4(), text=payload.text,image=payload.image, name = payload.name, user_id=user_id)
+            image = Post(id = uuid4(), text=text, image=post_image, name=name, user_id=user_id)
             session.add(image)
-            await session.flush()   
+            await session.flush() 
             await session.refresh(image)
-            return PostSchema.model_validate(image)
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
     

@@ -3,7 +3,6 @@ from pydantic import UUID4, BaseModel
 # Pydantic schema for get image request
 
 class PostCreate(BaseModel):
-    image: str
     text: str
     name: str
 
