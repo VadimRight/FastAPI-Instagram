@@ -15,7 +15,6 @@ Base = declarative_base(metadata=metadata)
 class Post(Base):
     __tablename__ = 'post'
     id: Mapped[str] = mapped_column(UUID, primary_key=True)
-    image: Mapped[str] = mapped_column(String, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     text: Mapped[str] = mapped_column(Text, nullable=True)
     user_id: Mapped[int] = mapped_column(UUID, ForeignKey("user.id"), nullable=False)
