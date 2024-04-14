@@ -1,4 +1,3 @@
-from typing import Annotated
 from uuid import uuid4
 
 from asyncpg import NotNullViolationError
@@ -9,16 +8,43 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.oauth import oauth2_scheme
 from src.auth.schemas import TokenData
 from src.database import get_session
-from src.post.schemas import PostCreate, PostSchema
 from src.models.models import Post, User
 from src.verif import get_id_from_token, verify_owner
-from fastapi import UploadFile
+from fastapi import UploadFile, File
+from src.cassandra_db import *
+from PIL import Image
 
-async def create_post(name, text, post_image: UploadFile, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+
+async def create_post(name, text, post_image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     try:
+        cassandra_session = cluster.connect('fastapiinstagram')
+        user_id = await get_id_from_token(token)
+        post_id = uuid4()
+        filename = str(post_image.filename)
+        id_image = uuid4()
+        extenction = filename.split('.')[1]
+        if extenction not in ["png", "jpg", "svg"]:
+            raise HTTPException(status_code=423, detail = "Inappropriate file type")
+        
+        generated_name = FILEPATH + str(post_id) + '.' + extenction
+        print(generated_name)
+        file_content = await post_image.read()
+        with open(generated_name, "wb") as file:
+            file.write(file_content)
+
+        img = Image.open(generated_name)
+        img = img.resize(size = (200, 200))
+        user_id = await get_id_from_token(token)
+        img.save(generated_name)
+
+        cassandra_session.execute_async(
+            f"""
+INSERT INTO fastapiinstagram.image (id, item_id, path) VALUES (%s, %s, %s);
+            """,
+            (id_image, post_id, generated_name)
+        )
         async with session.begin():
-            user_id = await get_id_from_token(token)
-            image = Post(id = uuid4(), text=text, image=post_image, name=name, user_id=user_id)
+            image = Post(id = post_id, text=text, name=name, user_id=user_id)
             session.add(image)
             await session.flush() 
             await session.refresh(image)
@@ -45,8 +71,8 @@ async def get_post_by_id(session: AsyncSession, id: str):
             raise HTTPException(status_code=400)
         return post
 
-
-async def get_username_by_post_id(session: AsyncSession, id: str):
+# TODO: rewrite this function
+async def get_username_by_post_id(session: AsyncSession, user_id: str):
         async with session.begin():
             query = select(User.username).where(User.id == Post.user_id)
             result = await session.execute(query)
