@@ -5,18 +5,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import ALGORITHM, SECRET
 from src.models.models import Comment, Post, User
 import uuid
+from src.auth.oauth import oauth2_scheme
+from fastapi import Depends
 
 
-async def get_id_from_token(token: str):
+async def get_id_from_token(token: str = Depends(oauth2_scheme)):
     payload = jwt.decode(token, SECRET, algorithms=[ALGORITHM])
     id: str = payload.get("sub")
     return uuid.UUID(id)
 
 
-async def verify_user(session: AsyncSession, token: str, id) -> bool:
+async def verify_user(session: AsyncSession, token: str) -> bool:
     async with session.begin():
         user_id = await get_id_from_token(token)
-        query = select(User.id).where(User.id == id)
+        query = select(User.id).where(User.id == user_id)
         result = await session.execute(query)
         owner_id = result.scalar()
         return owner_id == user_id

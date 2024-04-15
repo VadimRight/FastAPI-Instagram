@@ -8,6 +8,9 @@ from src.auth.oauth import oauth2_scheme
 from src.post.crud import create_post, delete_my_post, edit_post_image, edit_post_name, get_my_post, get_post_by_id, get_post_by_username
 from src.models.models import Post
 from fastapi import File, UploadFile
+from src.verif import verify_user
+from fastapi import HTTPException
+
 
 router = APIRouter(
     tags=["Post"]
@@ -37,13 +40,15 @@ async def post_image(text, name, image: UploadFile = File(None), token: str = De
 
 @router.get("/profile/posts")
 async def get_my_images(session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
+    check = await verify_user(session, token)
+    if not check:
+        raise HTTPException(status_code = 204, detail = 'It s not yours')
     posts: Post = await get_my_post(session, token)
     return posts
 
 
 @router.get("/profile/posts={id}")
-async def get_spesfic_post(id: str, session: AsyncSession = Depends(get_session)):
-    await get_user_by_username(session)
+async def get_spesific_post(id: str, session: AsyncSession = Depends(get_session)):
     post: Post = await get_post_by_id(session, id)
     return post
 
