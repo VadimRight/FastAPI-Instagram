@@ -48,6 +48,7 @@ INSERT INTO fastapiinstagram.image (id, item_id, path, user_id) VALUES (%s, %s, 
             session.add(image)
             await session.flush() 
             await session.refresh(image)
+            return f"Post {post_id} is succesfully created"
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
     

@@ -30,7 +30,7 @@ async def get_spesfic_post(username: str, id: str, session: AsyncSession = Depen
     return post
 
 # image router with get request, which returns all images
-@router.post("/new_post")
+@router.post("/new_post", status_code=201)
 async def post_image(text, name, image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await create_post(name, text, image, token, session)
 
@@ -46,7 +46,6 @@ async def get_spesfic_post(id: str, session: AsyncSession = Depends(get_session)
     await get_user_by_username(session)
     post: Post = await get_post_by_id(session, id)
     return post
-
 
 
 @router.delete("/profile/posts={id}")
