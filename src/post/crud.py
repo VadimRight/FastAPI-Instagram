@@ -39,15 +39,16 @@ async def create_post(name, text, post_image: UploadFile = File(None), token: st
 
         cassandra_session.execute_async(
             f"""
-INSERT INTO fastapiinstagram.image (id, item_id, path) VALUES (%s, %s, %s);
+INSERT INTO fastapiinstagram.image (id, item_id, path, user_id) VALUES (%s, %s, %s, %s);
             """,
-            (id_image, post_id, generated_name)
+            (id_image, post_id, generated_name, user_id)
         )
         async with session.begin():
             image = Post(id = post_id, text=text, name=name, user_id=user_id)
             session.add(image)
             await session.flush() 
             await session.refresh(image)
+            return f"Post {post_id} is succesfully created"
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
     
@@ -71,6 +72,7 @@ async def get_post_by_id(session: AsyncSession, id: str):
             raise HTTPException(status_code=400)
         return post
 
+
 # TODO: rewrite this function
 async def get_username_by_post_id(session: AsyncSession, user_id: str):
         async with session.begin():
@@ -80,6 +82,7 @@ async def get_username_by_post_id(session: AsyncSession, user_id: str):
             if username is None:
                 raise HTTPException(status_code=404)
             return username
+
 
 async def get_my_post(session: AsyncSession, token: str):
     try:
