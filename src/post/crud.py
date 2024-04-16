@@ -15,6 +15,8 @@ from src.cassandra_db import *
 from PIL import Image
 from uuid import UUID
 
+
+# TODO protect cassandra_session from fail in postgres session
 async def create_post(name, text, post_image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     try:
         cassandra_session = cluster.connect('fastapiinstagram')
@@ -65,10 +67,7 @@ async def get_post_by_username(session: AsyncSession, username: str):
     
 async def get_post_by_id(session: AsyncSession, id: str):
     cassandra_session = cluster.connect('fastapiinstagram')
-    path = cassandra_session.execute_async(
-        f"""
-    SELECT path FROM fastapiinstagram.image WHERE item_id = %s ALLOW FILTERING;
-        """, (UUID(id), ))
+    path = cassandra_session.execute_async(select_path_statement_by_image_id, [UUID(id)])
     async with session.begin():
         query = select(Post).where(Post.id == id)
         result = await session.execute(query)
@@ -91,15 +90,20 @@ async def get_username_by_post_id(session: AsyncSession, user_id: str):
 
 async def get_my_post(session: AsyncSession, token: str):
     try:
+        id = await get_id_from_token(token)
+        token_data = TokenData(id=id)
+        cassandra_session = cluster.connect('fastapiinstagram')
+        pathes = cassandra_session.execute_async(select_path_statement_by_user_id, [id])
         async with session.begin():
-            id = await get_id_from_token(token)
-            token_data = TokenData(id=id)
             query = select(Post).join(User).where(User.id == token_data.id)
             result = await session.execute(query)
             my_images = result.scalars()
             if my_images == []:
                 return {"detail": "You haven't posted anything yet"}
-            return (image for image in my_images)
+            images = (image for image in my_images)
+            result_pathes = [pathes.result()[i].path for i in range(len(pathes.result()[:]))]
+
+            return {"posts":images, "path": f"{result_pathes}"}
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
 
