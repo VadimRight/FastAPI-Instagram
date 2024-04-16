@@ -13,7 +13,7 @@ from src.verif import get_id_from_token, verify_owner
 from fastapi import UploadFile, File
 from src.cassandra_db import *
 from PIL import Image
-
+from uuid import UUID
 
 async def create_post(name, text, post_image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     try:
@@ -64,13 +64,18 @@ async def get_post_by_username(session: AsyncSession, username: str):
 
     
 async def get_post_by_id(session: AsyncSession, id: str):
+    cassandra_session = cluster.connect('fastapiinstagram')
+    path = cassandra_session.execute_async(
+        f"""
+    SELECT path FROM fastapiinstagram.image WHERE item_id = %s ALLOW FILTERING;
+        """, (UUID(id), ))
     async with session.begin():
         query = select(Post).where(Post.id == id)
         result = await session.execute(query)
         post = result.scalar()
         if post is None:
             raise HTTPException(status_code=400)
-        return post
+        return {"post": post, "path": f"{path.result()[0].path}"}
 
 
 # TODO: rewrite this function
