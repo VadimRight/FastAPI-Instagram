@@ -1,5 +1,5 @@
 from pydantic import UUID4, BaseModel, Field, EmailStr
-
+from uuid import UUID
 
 # Schema for getting user and superclass for other schemas
 class UserBaseSchema(BaseModel):
@@ -25,6 +25,7 @@ class UserSchema(BaseModel):
 
 
 class UserResponceSchema(BaseModel):
+    id: UUID
     username: str
     email: EmailStr
     is_active: bool = True

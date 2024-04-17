@@ -13,8 +13,12 @@ from src.verif import get_id_from_token, verify_owner
 from fastapi import UploadFile, File
 from src.cassandra_db import *
 from PIL import Image
+from uuid import UUID
+from src.post.schemas import PostSchema
+import pathlib
 
 
+# TODO protect cassandra_session from fail in postgres session
 async def create_post(name, text, post_image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     try:
         cassandra_session = cluster.connect('fastapiinstagram')
@@ -48,7 +52,7 @@ INSERT INTO fastapiinstagram.image (id, item_id, path, user_id) VALUES (%s, %s, 
             session.add(image)
             await session.flush() 
             await session.refresh(image)
-            return f"Post {post_id} is succesfully created"
+            return [PostSchema.model_validate(image), {"path": f"{generated_name}"}]
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
     
@@ -64,13 +68,15 @@ async def get_post_by_username(session: AsyncSession, username: str):
 
     
 async def get_post_by_id(session: AsyncSession, id: str):
+    cassandra_session = cluster.connect('fastapiinstagram')
+    path = cassandra_session.execute_async(select_path_statement_by_item_id, [UUID(id)])
     async with session.begin():
         query = select(Post).where(Post.id == id)
         result = await session.execute(query)
         post = result.scalar()
         if post is None:
             raise HTTPException(status_code=400)
-        return post
+        return {"post": post, "path": f"{path.result()[0].path}"}
 
 
 # TODO: rewrite this function
@@ -86,15 +92,19 @@ async def get_username_by_post_id(session: AsyncSession, user_id: str):
 
 async def get_my_post(session: AsyncSession, token: str):
     try:
+        id = await get_id_from_token(token)
+        token_data = TokenData(id=id)
+        cassandra_session = cluster.connect('fastapiinstagram')
+        pathes = cassandra_session.execute_async(select_path_statement_by_user_id, [id])
         async with session.begin():
-            id = await get_id_from_token(token)
-            token_data = TokenData(id=id)
             query = select(Post).join(User).where(User.id == token_data.id)
             result = await session.execute(query)
             my_images = result.scalars()
             if my_images == []:
                 return {"detail": "You haven't posted anything yet"}
-            return (image for image in my_images)
+            images = (image for image in my_images)
+            result_pathes = [pathes.result()[i].path for i in range(len(pathes.result()[:]))]
+            return {"posts":images, "path": f"{result_pathes}"}
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
 
@@ -106,6 +116,14 @@ async def delete_my_post(session: AsyncSession, id: str, token: str):
     async with session.begin():
         query = delete(Post).where(Post.id == id)
         await session.execute(query)
+    cassandra_session = cluster.connect('fastapiinstagram')
+    path = cassandra_session.execute_async(select_path_statement_by_item_id,[UUID(id)]).result()[0].path
+    file_path = pathlib.Path(path)
+    file_path.unlink()
+    image_id = cassandra_session.execute_async(select_id_statement_by_item_id, [UUID(id)]).result()[0].id
+    print(id)
+    cassandra_session.execute_async(delete_image_statement_by_id, [image_id])
+
 
 
 async def edit_post_name(session: AsyncSession, id: str, name: str, token: str):
