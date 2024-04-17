@@ -14,6 +14,8 @@ from fastapi import UploadFile, File
 from src.cassandra_db import *
 from PIL import Image
 from uuid import UUID
+from src.post.schemas import PostSchema
+import pathlib
 
 
 # TODO protect cassandra_session from fail in postgres session
@@ -50,7 +52,7 @@ INSERT INTO fastapiinstagram.image (id, item_id, path, user_id) VALUES (%s, %s, 
             session.add(image)
             await session.flush() 
             await session.refresh(image)
-            return f"Post {post_id} is succesfully created"
+            return [PostSchema.model_validate(image), {"path": f"{generated_name}"}]
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
     
@@ -67,7 +69,7 @@ async def get_post_by_username(session: AsyncSession, username: str):
     
 async def get_post_by_id(session: AsyncSession, id: str):
     cassandra_session = cluster.connect('fastapiinstagram')
-    path = cassandra_session.execute_async(select_path_statement_by_image_id, [UUID(id)])
+    path = cassandra_session.execute_async(select_path_statement_by_item_id, [UUID(id)])
     async with session.begin():
         query = select(Post).where(Post.id == id)
         result = await session.execute(query)
@@ -102,7 +104,6 @@ async def get_my_post(session: AsyncSession, token: str):
                 return {"detail": "You haven't posted anything yet"}
             images = (image for image in my_images)
             result_pathes = [pathes.result()[i].path for i in range(len(pathes.result()[:]))]
-
             return {"posts":images, "path": f"{result_pathes}"}
     except NotNullViolationError:
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
@@ -115,6 +116,13 @@ async def delete_my_post(session: AsyncSession, id: str, token: str):
     async with session.begin():
         query = delete(Post).where(Post.id == id)
         await session.execute(query)
+    cassandra_session = cluster.connect('fastapiinstagram')
+    path = cassandra_session.execute_async(select_path_statement_by_item_id,[UUID(id)]).result()[0].path
+    file_path = pathlib.Path(path)
+    file_path.unlink()
+    image_id = cassandra_session.execute_async(select_id_statement_by_item_id, [UUID(id)]).result()[0].id
+    cassandra_session.execute_async(delete_image_statement_by_id, [image_id])
+
 
 
 async def edit_post_name(session: AsyncSession, id: str, name: str, token: str):
