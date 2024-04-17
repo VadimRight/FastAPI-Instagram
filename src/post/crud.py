@@ -121,7 +121,6 @@ async def delete_my_post(session: AsyncSession, id: str, token: str):
     file_path = pathlib.Path(path)
     file_path.unlink()
     image_id = cassandra_session.execute_async(select_id_statement_by_item_id, [UUID(id)]).result()[0].id
-    print(id)
     cassandra_session.execute_async(delete_image_statement_by_id, [image_id])
 
 
