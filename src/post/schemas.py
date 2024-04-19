@@ -8,10 +8,9 @@ class PostCreate(BaseModel):
 
 class PostSchema(BaseModel):
     id: UUID4
-    image: str
+    text: str
     user_id: UUID4
     name: str
-
     class Config:
         from_attributes = True
 
