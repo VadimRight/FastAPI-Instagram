@@ -18,7 +18,10 @@ from src.post.schemas import PostSchema
 import pathlib
 
 
-# TODO protect cassandra_session from fail in postgres session
+"""
+This function serves for creating posts and storing pictures into image folder. User sends his picture as file to server and saves it to special folder and save path with post_id and user_id to cassandra database Path for image is generated from post's id, folder where it stored and file extenction.  
+"""
+# TODO Secure this func
 async def create_post(name, text, post_image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     try:
         cassandra_session = cluster.connect('fastapiinstagram')
@@ -90,6 +93,7 @@ async def get_username_by_post_id(session: AsyncSession, user_id: str):
             return username
 
 
+# This func return all current user's posts from postgres and path from cassandra 
 async def get_my_post(session: AsyncSession, token: str):
     try:
         id = await get_id_from_token(token)
@@ -109,6 +113,7 @@ async def get_my_post(session: AsyncSession, token: str):
         raise HTTPException(status_code=400, detail="Please, fill the form properly")
 
 
+# This func deletes post row from postgres database and cassandra database by post_id. And delete image file by its path, which we get by selecting 
 async def delete_my_post(session: AsyncSession, id: str, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
@@ -133,6 +138,7 @@ async def edit_post_name(session: AsyncSession, id: str, name: str, token: str):
         await session.execute(query)
 
 
+# This func for editing post's image but there is NO NEED for databases sessions and UPDATE query, so it only deletes an old file and replaces it with a new one
 async def edit_post_image(session: AsyncSession, id: str, token: str, image: UploadFile = File(None)):
     owner = await verify_owner(session, token, id)
     if owner is False:
