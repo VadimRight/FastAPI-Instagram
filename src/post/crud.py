@@ -11,7 +11,7 @@ from src.database import get_session
 from src.models.models import Post, User
 from src.verif import get_id_from_token, verify_owner
 from fastapi import UploadFile, File
-from src.cassandra_db import *
+from src.cassandra_db import cluster, FILEPATH 
 from PIL import Image
 from uuid import UUID
 
@@ -67,7 +67,7 @@ async def get_post_by_username(session: AsyncSession, username: str):
     
 async def get_post_by_id(session: AsyncSession, id: str):
     cassandra_session = cluster.connect('fastapiinstagram')
-    path = cassandra_session.execute_async(select_path_statement_by_image_id, [UUID(id)])
+    path = cassandra_session.execute_async(f"SELECT path FROM fastapiinstagram.image WHERE item_id = %s ALLOW FILTERING", [UUID(id)])
     async with session.begin():
         query = select(Post).where(Post.id == id)
         result = await session.execute(query)
@@ -93,7 +93,7 @@ async def get_my_post(session: AsyncSession, token: str):
         id = await get_id_from_token(token)
         token_data = TokenData(id=id)
         cassandra_session = cluster.connect('fastapiinstagram')
-        pathes = cassandra_session.execute_async(select_path_statement_by_user_id, [id])
+        pathes = cassandra_session.execute_async(f"SELECT path FROM fastapiinstagram.image WHERE user_id = %s  ALLOW FILTERING", [id])
         async with session.begin():
             query = select(Post).join(User).where(User.id == token_data.id)
             result = await session.execute(query)
