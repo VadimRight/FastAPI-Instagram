@@ -27,7 +27,7 @@ async def create_post(name, text, post_image: UploadFile = File(None), token: st
         filename = str(post_image.filename)
         id_image = uuid4()
         extenction = filename.split('.')[1]
-        if extenction not in ["png", "jpg", "svg"]:
+        if extenction not in ("png", "jpg", "svg"):
             raise HTTPException(status_code=423, detail = "Inappropriate file type")
         
         generated_name = FILEPATH + str(post_id) + '.' + extenction
@@ -124,7 +124,6 @@ async def delete_my_post(session: AsyncSession, id: str, token: str):
     cassandra_session.execute_async(f"DELETE FROM fastapiinstagram.image WHERE id = %s ;", [image_id])
 
 
-
 async def edit_post_name(session: AsyncSession, id: str, name: str, token: str):
     owner = await verify_owner(session, token, id)
     if owner is False:
@@ -134,10 +133,20 @@ async def edit_post_name(session: AsyncSession, id: str, name: str, token: str):
         await session.execute(query)
 
 
-async def edit_post_image(session: AsyncSession, id: str, image: str, token: str):
+async def edit_post_image(session: AsyncSession, id: str, token: str, image: UploadFile = File(None)):
     owner = await verify_owner(session, token, id)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
-    async with session.begin():
-        query = update(Post).where(Post.id == id).values(image=image)
-        await session.execute(query)
+    filename = str(image.filename)
+    extenction = filename.split('.')[1]
+    if extenction not in ("png", "jpg", "svg"):
+        raise HTTPException(status_code = 401, detail = "Inappropriat file Type") 
+    generated_name = f"{FILEPATH}{id}.{extenction}"
+    file_path = pathlib.Path(generated_name)
+    file_path.unlink()
+    file_content = await image.read()
+    with open(generated_name, "wb") as file:
+        file.write(file_content)
+    img = Image.open(generated_name)
+    img = img.resize(size = (200, 200))
+    img.save(generated_name)
