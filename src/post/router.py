@@ -64,5 +64,5 @@ async def update_name(id: str, name: str, session: AsyncSession = Depends(get_se
 
 
 @router.patch("/profile/posts={id}/edit_image")
-async def upgrade_image(id: str, image: str, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
-    return await edit_post_image(session, id, image, token)
+async def upgrade_image(id: str, image: UploadFile = File(None), session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
+    return await edit_post_image(session, id, token, image)
