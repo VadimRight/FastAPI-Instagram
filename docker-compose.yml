@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_instagram
+    command: -p 5432
+    env_file:
+      - .env.development
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra_instagram
+    command: cqlsh -e "CREATE KEYSPACE fastapiinstagram" && cqlsh -e "CREATE TABLE image fastapiinstagram.image (id uuid PRIMARY KEY, item_id uuid, path varchar, user_id uuid)"
+    ports: 
+      - 7002:7002
+  app:
+    container_name: fastapi_instagram
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8001:8001
+    depends_on:
+      - cassandra
+      - postgres
+    env_file:
+      - .env
+
