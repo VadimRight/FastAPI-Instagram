@@ -19,3 +19,6 @@ DB_PORT_TEST = os.environ.get("DB_PORT_TEST")
 DB_NAME_TEST = os.environ.get("DB_NAME_TEST")
 DB_PASSWORD_TEST = os.environ.get("DB_USER_TEST")
 DB_USER_TEST = os.environ.get("DB_PASSWORD_TEST")
+
+
+CASSANDRA_HOST = os.environ.get("CASSANDRA_HOST")
