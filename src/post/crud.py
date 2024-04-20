@@ -18,7 +18,6 @@ from src.post.schemas import PostSchema
 import pathlib
 
 
-
 """
 This function serves for creating posts and storing pictures into image folder. User sends his picture as file to server and saves it to special folder and save path with post_id and user_id to cassandra database Path for image is generated from post's id, folder where it stored and file extenction.  
 """
