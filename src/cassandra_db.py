@@ -1,6 +1,8 @@
 from cassandra.cluster import Cluster
+from src.config import CASSANDRA_HOST
 
-cluster = Cluster(['172.19.0.2'])
+
+cluster = Cluster([CASSANDRA_HOST])
 
 
 FILEPATH = "./images/"
