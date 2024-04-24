@@ -1,22 +1,22 @@
 version: '3.9'
 
 services:
-  cassandra_instagram:
-    image: cassandra:latest
-    container_name: cassandra_instagram
+  cassandra_init:
+    image: cassandra:4
     ports:
       - 9042:9042
-    environment:
-     - CASSANDRA_CLUSTER_NAME=cloudinfra
+    volumes:
+      - /var/lib/cassandra
+
+  cassandra_instagram:
+    image: cassandra:4
+    depends_on:
+      - cassandra_init
+    container_name: cassandra_instagram
     volumes:
       - ./cassandra_init.sh:/cassandra_init.sh
-      - /var/lib/cassandra
     entrypoint: ["/cassandra_init.sh"]
-    healthcheck:
-      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    restart: "no"
 
   postgres_instagram:
     image: postgres:15
@@ -27,8 +27,6 @@ services:
       - 5432
     env_file:
       - .env-non-dev
-    volumes:
-      - ./start.sh:/start.sh
 
 
   fastapi_instagram_app:
