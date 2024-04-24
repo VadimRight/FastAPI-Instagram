@@ -9,6 +9,7 @@ POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
 POSTGRES_NAME = os.environ.get("POSTGRES_NAME")
 POSTGRES_USER = os.environ.get("POSTGRES_USER")
 POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+
 SECRET = os.environ.get("SECRET")
 ALGORITHM = os.environ.get("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
