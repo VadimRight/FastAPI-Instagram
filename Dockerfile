@@ -11,4 +11,3 @@ COPY . .
 
 RUN chmod +x *.sh
 
-CMD ["/fastapi_app/wait_for_cassandra.sh", "-t", "30", "cassandra_instagram:9042", "--", "/fastapi_app/start.sh"]
