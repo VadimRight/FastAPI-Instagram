@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 import os, sys
 sys.path.append(os.path.join(sys.path[0], 'src'))
 from src.config import *
-from src.models.models import *
+from src.models.models import User, Post, Comment, Base, Like_For_Post, Like_For_Comment
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 
@@ -19,11 +19,11 @@ config = context.config
 # here we allow ourselves to pass interpolation vars to alembic.ini
 # fron the host env
 section = config.config_ini_section
-config.set_section_option(section, "DB_USER", str(DB_USER))
-config.set_section_option(section, "DB_PASSWORD", str(DB_PASSWORD))
-config.set_section_option(section, "DB_HOST", str(DB_HOST))
-config.set_section_option(section, "DB_NAME", str(DB_NAME))
-config.set_section_option(section, "DB_PORT", str(DB_PORT))
+config.set_section_option(section, "POSTGRES_USER", str(POSTGRES_USER))
+config.set_section_option(section, "POSTGRES_PASSWORD", str(POSTGRES_PASSWORD))
+config.set_section_option(section, "POSTGRES_HOST", str(POSTGRES_HOST))
+config.set_section_option(section, "POSTGRES_NAME", str(POSTGRES_NAME))
+config.set_section_option(section, "POSTGRES_PORT", str(POSTGRES_PORT))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

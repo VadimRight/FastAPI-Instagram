@@ -21,11 +21,16 @@ services:
   postgres_instagram:
     image: postgres:15
     container_name: postgres_instagram
-    command: -p 5432
+    command: 
+      - -p 5432
     expose: 
       - 5432
     env_file:
       - .env
+    volumes:
+      - ./wait_for_cassandra.sh:/wait_for_cassandra.sh
+      - ./start.sh:/start.sh
+
 
   fastapi_instagram_app:
     container_name: fastapi_instagram
@@ -39,4 +44,4 @@ services:
       - postgres_instagram
     env_file:
       - .env
-
+    command: ["/fastapi_app/wait_for_cassandra.sh", "-t", "30", "cassandra_instagram:9042", "--", "/fastapi_app/start.sh"]
