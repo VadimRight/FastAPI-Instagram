@@ -1,22 +1,12 @@
 version: '3.9'
 
 services:
-  cassandra_init:
-    image: cassandra:4
-    ports:
-      - 9042:9042
-    volumes:
-      - /var/lib/cassandra
-
   cassandra_instagram:
     image: cassandra:4
-    depends_on:
-      - cassandra_init
     container_name: cassandra_instagram
-    volumes:
-      - ./cassandra_init.sh:/cassandra_init.sh
-    entrypoint: ["/cassandra_init.sh"]
-    restart: "no"
+    build:
+      context: ./docker_cassandra
+      dockerfile: Dockerfile
 
   postgres_instagram:
     image: postgres:15
@@ -37,8 +27,9 @@ services:
     ports:
       - 8000:8000
     depends_on:
-      - cassandra_instagram
       - postgres_instagram
+      - cassandra_instagram
     env_file: 
       - .env-non-dev
-    command: ["/fastapi_app/wait_for_cassandra.sh", "-t", "30", "cassandra_instagram:9042", "--", "/fastapi_app/start.sh"]
+    command: ["/fastapi_app/wait_for_cassandra.sh", "-t", "150", "cassandra_instagram:9042", "--", "/fastapi_app/start.sh"]
+    restart: on-failure
