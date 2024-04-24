@@ -31,5 +31,5 @@ services:
       - cassandra_instagram
     env_file: 
       - .env-non-dev
-    command: ["/fastapi_app/wait_for_cassandra.sh", "-t", "150", "cassandra_instagram:9042", "--", "/fastapi_app/start.sh"]
+    command: ["/fastapi_app/wait_for_cassandra.sh", "-t", "25", "cassandra_instagram:9042", "--", "/fastapi_app/start.sh"]
     restart: on-failure
