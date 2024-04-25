@@ -14,7 +14,7 @@ from src.models.models import Post, User
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import List
 from src.post.crud import get_my_post, get_post_by_username
-from src.science import time_decorator
+from src.science.time_decorator import time_decorator
 
 
 # User router initialization

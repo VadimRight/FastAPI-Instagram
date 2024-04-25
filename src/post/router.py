@@ -10,7 +10,7 @@ from src.models.models import Post
 from fastapi import File, UploadFile
 from src.verif import verify_user
 from fastapi import HTTPException
-from src.science import time_decorator
+from src.science.time_decorator import time_decorator
 
 
 router = APIRouter(

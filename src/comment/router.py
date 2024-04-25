@@ -6,7 +6,7 @@ from src.comment.schemas import CommentCreate
 from src.database import get_session
 from src.auth.oauth import oauth2_scheme
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.science import time_decorator
+from src.science.time_decorator import time_decorator
 
 
 router = APIRouter(

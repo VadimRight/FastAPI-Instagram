@@ -10,7 +10,7 @@ def time_decorator(func):
         time_execution = time_end - time_start
         time_execution_milliseconds = time_execution * 1000
         print('func:%r args:[%r, %r] took: %2.4f millisec' % \
-        (func.__name__, args, kw, time_execution))
+        (func.__name__, args, kw, time_execution_milliseconds))
         return result
     return wrapped
 
