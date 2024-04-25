@@ -1,5 +1,5 @@
 # NOTE: will also work with other cassandra version tags
-FROM cassandra:3.11
+FROM cassandra:4
 
 # Fix UTF-8 accents in init scripts
 ENV LANG C.UTF-8
