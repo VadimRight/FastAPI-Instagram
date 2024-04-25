@@ -10,6 +10,7 @@ from src.models.models import Post
 from fastapi import File, UploadFile
 from src.verif import verify_user
 from fastapi import HTTPException
+from src.science import time_decorator
 
 
 router = APIRouter(
@@ -17,9 +18,9 @@ router = APIRouter(
 )
 
 
-
 # Router for getting all images from specific user
 @router.get("/users/{username}/posts")
+@time_decorator
 async def get_image(username: str, session: AsyncSession =  Depends(get_session)):
     await get_user_by_username(session, username)
     post: Post = await get_post_by_username(session, username)
@@ -27,6 +28,7 @@ async def get_image(username: str, session: AsyncSession =  Depends(get_session)
 
 
 @router.get("/users/{username}/posts={id}")
+@time_decorator
 async def get_spesfic_post(username: str, id: str, session: AsyncSession = Depends(get_session)):
     await get_user_by_username(session, username)
     post: Post = await get_post_by_id(session, id)
@@ -34,11 +36,13 @@ async def get_spesfic_post(username: str, id: str, session: AsyncSession = Depen
 
 # image router with get request, which returns all images
 @router.post("/new_post", status_code=201)
+@time_decorator
 async def post_image(text, name, image: UploadFile = File(None), token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await create_post(name, text, image, token, session)
 
 
 @router.get("/profile/posts")
+@time_decorator
 async def get_my_images(session: AsyncSession = Depends(get_session), token: str = Depends(oauth2_scheme)):
     check = await verify_user(session, token)
     if not check:
@@ -48,21 +52,25 @@ async def get_my_images(session: AsyncSession = Depends(get_session), token: str
 
 
 @router.get("/profile/posts={id}")
+@time_decorator
 async def get_spesific_post(id: str, session: AsyncSession = Depends(get_session)):
     post: Post = await get_post_by_id(session, id)
     return post
 
 
 @router.delete("/profile/posts={id}")
+@time_decorator
 async def delete_image( id: str, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
     return await delete_my_post(session, id, token)
 
 
 @router.patch("/profile/posts={id}/edit_name")
+@time_decorator
 async def update_name(id: str, name: str, session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
     return await edit_post_name(session, id, name, token)
 
 
 @router.patch("/profile/posts={id}/edit_image")
+@time_decorator
 async def upgrade_image(id: str, image: UploadFile = File(None), session: AsyncSession = Depends(get_session), token = Depends(oauth2_scheme)):
     return await edit_post_image(session, id, token, image)

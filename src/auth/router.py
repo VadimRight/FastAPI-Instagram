@@ -14,6 +14,8 @@ from src.models.models import Post, User
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import List
 from src.post.crud import get_my_post, get_post_by_username
+from src.science import time_decorator
+
 
 # User router initialization
 router = APIRouter(
@@ -23,6 +25,7 @@ router = APIRouter(
 
 # Endpoint router with post request
 @router.post("/register")
+@time_decorator
 async def register(payload: CreateUserResponceSchema = Body(),
                    session: AsyncSession = Depends(get_session)):
     payload.hashed_password = User.hash_password(payload.hashed_password)
@@ -30,6 +33,7 @@ async def register(payload: CreateUserResponceSchema = Body(),
 
 
 @router.get("/users/{username}")
+@time_decorator
 async def profile(
         username: str,
         session: AsyncSession = Depends(get_session)):
@@ -41,6 +45,7 @@ async def profile(
 
 
 @router.get("/profile")
+@time_decorator
 async def read_users_me(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     user: User = await get_current_user(token, session)
     posts: Set[Post] = await get_my_post(session, token)
@@ -49,6 +54,7 @@ async def read_users_me(token: str = Depends(oauth2_scheme), session: AsyncSessi
 
 # Endpoint for user authentication and getting token
 @router.post("/token")
+@time_decorator
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_session)
@@ -69,17 +75,20 @@ async def login_for_access_token(
 
 
 @router.patch("/profile/change_username")
+@time_decorator
 async def update_username(username: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     await edit_user_username(session, username, token)
 
 
 
 @router.patch("/profile/change_email/")
+@time_decorator
 async def update_email(email: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await edit_user_mail(session, email, token)
 
 
 
 @router.patch("/profile/reset_passwd")
+@time_decorator
 async def update_passwd(passwd: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await reset_password(session, passwd, token)
