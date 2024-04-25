@@ -2,6 +2,8 @@ alembic==1.13.1
 asyncpg==0.29.0
 bcrypt
 cassandra_driver==3.29.1
+numpy
+matplotlib
 fastapi[all]
 httpx==0.27.0
 passlib==1.7.4
