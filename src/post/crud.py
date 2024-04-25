@@ -34,7 +34,6 @@ async def create_post(name, text, post_image: UploadFile = File(None), token: st
             raise HTTPException(status_code=423, detail = "Inappropriate file type")
         
         generated_name = FILEPATH + str(post_id) + '.' + extenction
-        print(generated_name)
         file_content = await post_image.read()
         with open(generated_name, "wb") as file:
             file.write(file_content)
