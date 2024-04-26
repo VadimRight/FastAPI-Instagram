@@ -18,7 +18,7 @@ def time_decorator(func):
             lines = file.readlines()
         with open('./src/science/data.txt', 'w') as file:
             for item in analysis_data_output:
-                file.write(item + ' ')
+                file.write(item + '\n')
         print('func:%r args:[%r, %r] took: %2.4f millisec' % \
         (func.__name__, args, kw, time_execution_milliseconds))
         return result
