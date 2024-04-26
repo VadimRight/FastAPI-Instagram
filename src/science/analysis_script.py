@@ -6,9 +6,9 @@ with open('./src/science/data.txt', 'r') as file:
 
 analysis_data = analysis_data[:-1]
 print(analysis_data)
+analysis_data = [float(i) for i in analysis_data]
 
-
+analysis_data = analysis_data[2:]
 plt.plot(analysis_data)
-plt.plot(analysis_data, 'o')
 plt.show()
 

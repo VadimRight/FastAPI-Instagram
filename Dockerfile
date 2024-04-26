@@ -9,5 +9,7 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-RUN chmod +x *.sh
+RUN apt-get update -y
+RUN apt-get install -y python3 python3-pip
 
+RUN chmod +x *.sh
