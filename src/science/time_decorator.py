@@ -2,7 +2,6 @@ from functools import wraps
 from time import time
 
 analysis_data = []
-analysis_data_output = []
 
 def time_decorator(func):
     @wraps(func)
@@ -13,12 +12,15 @@ def time_decorator(func):
         time_execution = time_end - time_start
         time_execution_milliseconds = time_execution * 1000
         analysis_data.append(time_execution_milliseconds)
-        global analysis_data_output
-        analysis_data_output = analysis_data
+        analysis_data_output = [str(i) for i in analysis_data]
         print(analysis_data_output)
+        with open('./src/science/data.txt', 'r') as file:
+            lines = file.readlines()
+        with open('./src/science/data.txt', 'w') as file:
+            for item in analysis_data_output:
+                file.write(item + ' ')
         print('func:%r args:[%r, %r] took: %2.4f millisec' % \
         (func.__name__, args, kw, time_execution_milliseconds))
         return result
     return wrapped
 
-print(analysis_data_output)
