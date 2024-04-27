@@ -14,9 +14,9 @@ def time_decorator(func):
         analysis_data.append(time_execution_milliseconds)
         analysis_data_output = [str(i) for i in analysis_data]
         print(analysis_data_output)
-        with open('./src/science/data.txt', 'r') as file:
+        with open('./data/data.txt', 'r') as file:
             lines = file.readlines()
-        with open('./src/science/data.txt', 'w') as file:
+        with open('./data/data.txt', 'w') as file:
             for item in analysis_data_output:
                 file.write(item + '\n')
         print('func:%r args:[%r, %r] took: %2.4f millisec' % \

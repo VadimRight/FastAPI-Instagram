@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-with open('./src/science/data.txt', 'r') as file:
+with open('./data/data.txt', 'r') as file:
     data = file.read()
     analysis_data = data.split('\n')
 

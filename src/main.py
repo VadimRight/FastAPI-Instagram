@@ -18,9 +18,9 @@ app.include_router(comment_router)
 
 @app.on_event("startup")
 async def startup_event():
-    with open('./src/science/data.txt', 'r') as file:
+    with open('./data/data.txt', 'r') as file:
         lines = file.readlines()
-    with open('./src/science/data.txt', 'w') as file:
+    with open('./data/data.txt', 'w') as file:
         for number, line in enumerate(lines):
             if number >= 0:
                 file.truncate()
