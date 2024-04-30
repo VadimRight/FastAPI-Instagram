@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   cassandra_instagram:
     image: cassandra:4
