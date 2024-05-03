@@ -12,7 +12,7 @@ def time_decorator(func):
         time_execution = time_end - time_start
         time_execution_milliseconds = time_execution * 1000
         analysis_data.append(time_execution_milliseconds)
-        print('func:%r args:[%r, %r] took: %2.4f sec' % \
+        print('func:%r args:[%r, %r] took: %2.4f millisec' % \
           (func.__name__, args, kw, time_execution_milliseconds))
         analysis_data_output = [str(i) for i in analysis_data]
         with open('./data/data.txt', 'r') as file:
