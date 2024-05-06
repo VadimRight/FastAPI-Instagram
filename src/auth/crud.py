@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException, Depends
 from passlib.context import CryptContext
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from starlette import status
@@ -127,18 +127,22 @@ async def edit_user_username(session: AsyncSession, username: str, token: str):
 
 async def edit_user_mail(session: AsyncSession, email: str, token: str):
     id = await get_id_from_token(token)
-    owner = await verify_user(session, token, id)
+    owner = await verify_user(session, token)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
     async with session.begin():
         query = update(User).where(User.id == id).values(email=email)
         await session.execute(query)
 
-
+async def delete_user(session: AsyncSession, username: str):
+    async with session.begin():
+        query = delete(User).where(User.username == username)
+        await session.execute(query)
+        return {"User is deleted successfuly"}
 
 async def reset_password(session: AsyncSession, new_passwd: str, token: str):
     id =  await get_id_from_token(token)
-    owner = await verify_user(session, token, id)
+    owner = await verify_user(session, token)
     if owner is False:
         raise HTTPException(status_code=403, detail="Permission denied")
     async with session.begin():
