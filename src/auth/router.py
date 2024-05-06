@@ -7,7 +7,7 @@ from starlette import status
 
 from src.auth.crud import create_user, edit_user_mail, edit_user_username, get_user_by_username, authenticate_user, create_access_token, get_current_user, reset_password, delete_user
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import UserResponceSchema, CreateUserResponceSchema, UserBaseSchema, Token
+from src.auth.schemas import UserResponceSchema, CreateUserResponceSchema, UserBaseSchema, Token, UsernameSchema
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from src.database import get_session
 from src.models.models import Post, User
@@ -95,5 +95,5 @@ async def update_passwd(passwd: str, token: str = Depends(oauth2_scheme), sessio
 
 
 @router.delete("/profile/delete_user")
-async def delete_me(username: str, session: AsyncSession = Depends(get_session)):
-    return await delete_user(session, username)
+async def delete_me(payload: UsernameSchema = Body(), session: AsyncSession = Depends(get_session)):
+    return await delete_user(payload, session)
