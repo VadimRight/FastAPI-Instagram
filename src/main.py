@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from src.post.router import router as image_router
 from src.auth.router import router as user_router
 from src.comment.router import router as comment_router
+from src.data_download.router import router as file_download
 from contextlib import asynccontextmanager
 
 
@@ -15,6 +16,7 @@ app = FastAPI(
 app.include_router(image_router)
 app.include_router(user_router)
 app.include_router(comment_router)
+app.include_router(file_download)
 
 @app.on_event("startup")
 async def startup_event():
