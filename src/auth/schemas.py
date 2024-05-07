@@ -21,6 +21,10 @@ class UsernameSchema(BaseModel):
     username: str
 
 
+class UserIdShcema(BaseModel):
+    id: UUID
+
+
 #  Schema for getting User with all rows
 class UserSchema(BaseModel):
     id: UUID4
