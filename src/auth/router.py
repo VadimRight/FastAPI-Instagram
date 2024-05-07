@@ -5,9 +5,9 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from src.auth.crud import create_user, edit_user_mail, edit_user_username, get_user_by_username, authenticate_user, create_access_token, get_current_user, reset_password
+from src.auth.crud import create_user, edit_user_mail, edit_user_username, get_user_by_username, authenticate_user, create_access_token, get_current_user, reset_password, delete_user
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import UserResponceSchema, CreateUserResponceSchema, UserBaseSchema, Token
+from src.auth.schemas import UserResponceSchema, CreateUserResponceSchema, UserBaseSchema, Token, UsernameSchema
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from src.database import get_session
 from src.models.models import Post, User
@@ -84,3 +84,8 @@ async def update_email(email: str, token: str = Depends(oauth2_scheme), session:
 @router.patch("/profile/reset_passwd")
 async def update_passwd(passwd: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await reset_password(session, passwd, token)
+
+
+@router.delete("/profile/delete_user")
+async def delete_me(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+    return await delete_user(token, session)
