@@ -5,9 +5,9 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from src.auth.crud import create_user, edit_user_mail, edit_user_username, get_user_by_username, authenticate_user, create_access_token, get_current_user, reset_password
+from src.auth.crud import create_user, edit_user_mail, edit_user_username, get_user_by_username, authenticate_user, create_access_token, get_current_user, reset_password, delete_user
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import UserResponceSchema, CreateUserResponceSchema, UserBaseSchema, Token
+from src.auth.schemas import UserResponceSchema, CreateUserResponceSchema, UserBaseSchema, Token, UsernameSchema
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from src.database import get_session
 from src.models.models import Post, User
@@ -25,7 +25,6 @@ router = APIRouter(
 
 # Endpoint router with post request
 @router.post("/register")
-@time_decorator
 async def register(payload: CreateUserResponceSchema = Body(),
                    session: AsyncSession = Depends(get_session)):
     payload.hashed_password = User.hash_password(payload.hashed_password)
@@ -54,7 +53,6 @@ async def read_users_me(token: str = Depends(oauth2_scheme), session: AsyncSessi
 
 # Endpoint for user authentication and getting token
 @router.post("/token")
-@time_decorator
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_session)
@@ -92,3 +90,8 @@ async def update_email(email: str, token: str = Depends(oauth2_scheme), session:
 @time_decorator
 async def update_passwd(passwd: str, token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
     return await reset_password(session, passwd, token)
+
+
+@router.delete("/profile/delete_user")
+async def delete_me(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+    return await delete_user(token, session)

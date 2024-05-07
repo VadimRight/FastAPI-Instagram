@@ -7,9 +7,22 @@ class UserBaseSchema(BaseModel):
     username: str
 
 
+class UserLoginSchema(BaseModel):
+    username: str
+    password: str
+
+
 # Schema for user registration
 class CreateUserResponceSchema(UserBaseSchema):
     hashed_password: str = Field(alias="password")
+
+
+class UsernameSchema(BaseModel):
+    username: str
+
+
+class UserIdShcema(BaseModel):
+    id: UUID
 
 
 #  Schema for getting User with all rows

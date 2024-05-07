@@ -3,13 +3,13 @@ from datetime import datetime, timezone, timedelta
 from asyncpg import UniqueViolationError
 from fastapi import HTTPException, Depends
 from passlib.context import CryptContext
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from starlette import status
 import jwt
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import CreateUserResponceSchema, UserResponceSchema, TokenData, UserInDB
+from src.auth.schemas import CreateUserResponceSchema, UserResponceSchema, TokenData, UserInDB, UserLoginSchema, UsernameSchema, UserIdShcema
 from src.config import SECRET, ALGORITHM
 from src.database import get_session
 from src.models.models import User
@@ -117,7 +117,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSe
 
 async def edit_user_username(session: AsyncSession, username: str, token: str):
     id = await get_id_from_token(token)
-    owner = await verify_user(session, token, id)
+    owner = await verify_user(session, token)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
     async with session.begin():
@@ -127,7 +127,7 @@ async def edit_user_username(session: AsyncSession, username: str, token: str):
 
 async def edit_user_mail(session: AsyncSession, email: str, token: str):
     id = await get_id_from_token(token)
-    owner = await verify_user(session, token, id)
+    owner = await verify_user(session, token)
     if owner is False:
         raise HTTPException(status_code=403, detail="You dont have such permission")
     async with session.begin():
@@ -135,10 +135,20 @@ async def edit_user_mail(session: AsyncSession, email: str, token: str):
         await session.execute(query)
 
 
+async def delete_user(token: str, session: AsyncSession):
+    id = await get_id_from_token(token)
+    owner = await verify_user(session, token)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="You dont have such permission")
+    async with session.begin():
+        query = delete(User).where(User.id == id)
+        await session.execute(query)
+        return {"User is deleted successfuly"}
+
 
 async def reset_password(session: AsyncSession, new_passwd: str, token: str):
     id =  await get_id_from_token(token)
-    owner = await verify_user(session, token, id)
+    owner = await verify_user(session, token)
     if owner is False:
         raise HTTPException(status_code=403, detail="Permission denied")
     async with session.begin():
