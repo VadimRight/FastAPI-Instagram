@@ -25,7 +25,6 @@ router = APIRouter(
 
 # Endpoint router with post request
 @router.post("/register")
-@time_decorator
 async def register(payload: CreateUserResponceSchema = Body(),
                    session: AsyncSession = Depends(get_session)):
     payload.hashed_password = User.hash_password(payload.hashed_password)
@@ -54,7 +53,6 @@ async def read_users_me(token: str = Depends(oauth2_scheme), session: AsyncSessi
 
 # Endpoint for user authentication and getting token
 @router.post("/token")
-@time_decorator
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_session)
@@ -95,5 +93,5 @@ async def update_passwd(passwd: str, token: str = Depends(oauth2_scheme), sessio
 
 
 @router.delete("/profile/delete_user")
-async def delete_me(payload: UsernameSchema = Body(), session: AsyncSession = Depends(get_session)):
-    return await delete_user(payload, session)
+async def delete_me(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)):
+    return await delete_user(token, session)

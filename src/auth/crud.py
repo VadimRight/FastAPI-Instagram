@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 import jwt
 from src.auth.oauth import oauth2_scheme
-from src.auth.schemas import CreateUserResponceSchema, UserResponceSchema, TokenData, UserInDB, UserLoginSchema, UsernameSchema
+from src.auth.schemas import CreateUserResponceSchema, UserResponceSchema, TokenData, UserInDB, UserLoginSchema, UsernameSchema, UserIdShcema
 from src.config import SECRET, ALGORITHM
 from src.database import get_session
 from src.models.models import User
@@ -135,9 +135,13 @@ async def edit_user_mail(session: AsyncSession, email: str, token: str):
         await session.execute(query)
 
 
-async def delete_user(payload: UsernameSchema, session: AsyncSession):
+async def delete_user(token: str, session: AsyncSession):
+    id = await get_id_from_token(token)
+    owner = await verify_user(session, token)
+    if owner is False:
+        raise HTTPException(status_code=403, detail="You dont have such permission")
     async with session.begin():
-        query = delete(User).where(User.username == payload.username)
+        query = delete(User).where(User.id == id)
         await session.execute(query)
         return {"User is deleted successfuly"}
 
