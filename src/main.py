@@ -26,5 +26,3 @@ async def startup_event():
         for number, line in enumerate(lines):
             if number >= 0:
                 file.truncate()
-
-
